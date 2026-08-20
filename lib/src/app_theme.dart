@@ -101,5 +101,23 @@ ThemeData buildAppTheme(
       indicatorColor: seedColor.withValues(alpha: isDark ? .28 : .20),
     ),
     dividerColor: isDark ? const Color(0xFF354049) : const Color(0xFFDDE4EA),
+    // Material 3's default switch fills the whole "on" track with
+    // colorScheme.primary and a near-opposite thumb color, which reads as
+    // quite intense against this palette's saturated seed colors. The
+    // softer primary-container pair keeps switches on-brand without the
+    // harsh contrast; returning null for other states defers to Flutter's
+    // built-in Material 3 defaults.
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? scheme.onPrimaryContainer
+            : null,
+      ),
+      trackColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? scheme.primaryContainer
+            : null,
+      ),
+    ),
   );
 }

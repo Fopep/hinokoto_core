@@ -11,7 +11,19 @@ abstract final class AppPalette {
   static const colors = [slate, blue, green, orange, purple];
 }
 
-ThemeData buildAppTheme(Brightness brightness) {
+/// Builds a Material 3 [ThemeData]. The color arguments default to
+/// [AppPalette]'s values, but every app using this shared theme need not
+/// share the same brand colors — pass your own to change them without
+/// forking this function.
+ThemeData buildAppTheme(
+  Brightness brightness, {
+  Color seedColor = AppPalette.blue,
+  Color? primaryColor,
+  Color onPrimaryColor = const Color(0xFF00243A),
+  Color secondaryColor = AppPalette.purple,
+  Color tertiaryColor = AppPalette.orange,
+  Color errorColor = AppPalette.red,
+}) {
   final isDark = brightness == Brightness.dark;
   final surface = isDark ? const Color(0xFF101418) : const Color(0xFFF7F9FB);
   final inputBorderColor = isDark
@@ -22,15 +34,15 @@ ThemeData buildAppTheme(Brightness brightness) {
       : const Color(0xFFDDE4EA);
   final scheme =
       ColorScheme.fromSeed(
-        seedColor: AppPalette.blue,
+        seedColor: seedColor,
         brightness: brightness,
         surface: surface,
       ).copyWith(
-        primary: AppPalette.blue,
-        onPrimary: const Color(0xFF00243A),
-        secondary: AppPalette.purple,
-        tertiary: AppPalette.orange,
-        error: AppPalette.red,
+        primary: primaryColor ?? seedColor,
+        onPrimary: onPrimaryColor,
+        secondary: secondaryColor,
+        tertiary: tertiaryColor,
+        error: errorColor,
       );
 
   return ThemeData(
@@ -86,7 +98,7 @@ ThemeData buildAppTheme(Brightness brightness) {
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: isDark ? const Color(0xFF181D22) : Colors.white,
-      indicatorColor: AppPalette.blue.withValues(alpha: isDark ? .28 : .20),
+      indicatorColor: seedColor.withValues(alpha: isDark ? .28 : .20),
     ),
     dividerColor: isDark ? const Color(0xFF354049) : const Color(0xFFDDE4EA),
   );

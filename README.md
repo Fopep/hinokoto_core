@@ -39,7 +39,10 @@ app's identity. See the consuming app's own `AppConfig` (e.g. `lib/src/app_confi
   `sqflite_common_ffi` init for Linux/Windows (conditionally a no-op elsewhere).
 - `app_bar_layout.dart` — `AppBackButton`, content-width-aware back button placement.
 - `app_dialog.dart` — `AppDialog` / `showAppDialog`, a generic dialog shell.
-- `app_theme.dart` — `buildAppTheme(Brightness)`, `AppPalette` (color constants).
+- `app_theme.dart` — `buildAppTheme(Brightness, {seedColor, primaryColor, onPrimaryColor,
+  secondaryColor, tertiaryColor, errorColor})`. Every color defaults to `AppPalette`'s values but is
+  overridable — apps are not stuck with the same brand colors just because they share this theme
+  builder. `AppPalette` itself (color constants) is still here as the shared default palette.
 - `svg_logo.dart` — `SvgLogo`, a parameterized SVG logo widget.
 - `app_review.dart` — `supportsInAppReview`, `requestAppReview()`, `showRateMenuItem()`,
   `isAndroidPlatform`, `isIosPlatform`.
@@ -48,9 +51,14 @@ app's identity. See the consuming app's own `AppConfig` (e.g. `lib/src/app_confi
 
 ## Versioning
 
-No published version history yet beyond `v0.1.0`. Tag a new version for any change consuming apps
-should be able to pick up; apps pin `ref:` to a specific tag rather than tracking `main`, so bumping
-is an explicit, per-app decision.
+Tag a new version for any change consuming apps should be able to pick up; apps pin `ref:` to a
+specific tag rather than tracking `main`, so bumping is an explicit, per-app decision.
+
+- `v0.1.0` — initial extraction from `app_template`.
+- `v0.2.0` — `buildAppTheme`'s colors (seed/primary/onPrimary/secondary/tertiary/error) are now
+  optional constructor-style parameters instead of hardcoded `AppPalette` values, so apps can use a
+  different brand palette without forking the theme builder. Defaults are unchanged, so this is a
+  backward-compatible addition.
 
 ## Development
 

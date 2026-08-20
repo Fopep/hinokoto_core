@@ -18,4 +18,31 @@ void main() {
       expect(disabledBorder.borderSide.style, BorderStyle.solid);
     });
   }
+
+  test('defaults to AppPalette colors', () {
+    final scheme = buildAppTheme(Brightness.light).colorScheme;
+    expect(scheme.primary, AppPalette.blue);
+    expect(scheme.secondary, AppPalette.purple);
+    expect(scheme.tertiary, AppPalette.orange);
+    expect(scheme.error, AppPalette.red);
+  });
+
+  test('every color is overridable so apps are not stuck with AppPalette', () {
+    const seed = Color(0xFF00AA00);
+    const secondary = Color(0xFF00BB00);
+    const tertiary = Color(0xFF00CC00);
+    const error = Color(0xFF00DD00);
+    final scheme = buildAppTheme(
+      Brightness.light,
+      seedColor: seed,
+      secondaryColor: secondary,
+      tertiaryColor: tertiary,
+      errorColor: error,
+    ).colorScheme;
+
+    expect(scheme.primary, seed);
+    expect(scheme.secondary, secondary);
+    expect(scheme.tertiary, tertiary);
+    expect(scheme.error, error);
+  });
 }

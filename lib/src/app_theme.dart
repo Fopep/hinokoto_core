@@ -44,6 +44,15 @@ ThemeData buildAppTheme(
         tertiary: tertiaryColor,
         error: errorColor,
       );
+  // Always derived from dark mode's tonal palette, regardless of the
+  // theme's actual brightness — dark mode's primary-container pair reads
+  // well against both a light and a dark background, whereas light mode's
+  // own (much paler) primary-container looks washed out. Used for switches
+  // only, so they look identical in both themes.
+  final switchColors = ColorScheme.fromSeed(
+    seedColor: seedColor,
+    brightness: Brightness.dark,
+  ).copyWith(primary: primaryColor ?? seedColor);
 
   return ThemeData(
     colorScheme: scheme,
@@ -110,12 +119,12 @@ ThemeData buildAppTheme(
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith(
         (states) => states.contains(WidgetState.selected)
-            ? scheme.onPrimaryContainer
+            ? switchColors.onPrimaryContainer
             : null,
       ),
       trackColor: WidgetStateProperty.resolveWith(
         (states) => states.contains(WidgetState.selected)
-            ? scheme.primaryContainer
+            ? switchColors.primaryContainer
             : null,
       ),
     ),

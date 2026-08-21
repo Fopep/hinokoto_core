@@ -115,11 +115,12 @@ ThemeData buildAppTheme(
     // quite intense against this palette's saturated seed colors. The
     // softer primary-container pair keeps switches on-brand without the
     // harsh contrast; returning null for other states defers to Flutter's
-    // built-in Material 3 defaults.
+    // built-in Material 3 defaults. The "on" thumb is plain white against
+    // that track; the "off" thumb keeps Flutter's default.
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith(
         (states) => states.contains(WidgetState.selected)
-            ? switchColors.onPrimaryContainer
+            ? Colors.white
             : null,
       ),
       trackColor: WidgetStateProperty.resolveWith(

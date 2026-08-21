@@ -27,6 +27,18 @@ void main() {
     expect(scheme.error, AppPalette.red);
   });
 
+  for (final brightness in Brightness.values) {
+    test(
+      'switch thumb is white only when on, default otherwise in ${brightness.name}',
+      () {
+        final thumbColor = buildAppTheme(brightness).switchTheme.thumbColor!;
+        expect(thumbColor.resolve({WidgetState.selected}), Colors.white);
+        expect(thumbColor.resolve({}), isNull);
+        expect(thumbColor.resolve({WidgetState.disabled}), isNull);
+      },
+    );
+  }
+
   test('every color is overridable so apps are not stuck with AppPalette', () {
     const seed = Color(0xFF00AA00);
     const secondary = Color(0xFF00BB00);

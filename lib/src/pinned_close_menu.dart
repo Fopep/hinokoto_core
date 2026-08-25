@@ -288,9 +288,7 @@ class _MenuPanel extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor.withValues(alpha: 0.98),
           borderRadius: radius,
-          border: Border.all(
-            color: colorScheme.outline.withValues(alpha: 0.7),
-          ),
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.7)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.13),
@@ -334,9 +332,7 @@ class _MenuPanel extends StatelessWidget {
                             ),
                           ),
                           dividerTheme: DividerThemeData(
-                            color: colorScheme.outline.withValues(
-                              alpha: 0.5,
-                            ),
+                            color: colorScheme.outline.withValues(alpha: 0.5),
                             thickness: 1,
                           ),
                           splashColor: colorScheme.primary.withValues(

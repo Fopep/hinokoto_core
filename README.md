@@ -16,7 +16,7 @@ dependencies:
   hinokoto_core:
     git:
       url: https://github.com/Fopep/hinokoto_core.git
-      ref: v0.5.1
+      ref: v0.5.2
 ```
 
 Then import the single barrel file — do not import files under `lib/src/` directly:
@@ -36,6 +36,9 @@ app's identity. See the consuming app's own `AppConfig` (e.g. `lib/src/app_confi
   `AdBannerSlot` falls back to Google's public test ad unit IDs whenever the caller doesn't supply
   real ones, in both debug and release builds. `hideAdWidget` keeps the reserved space but skips
   rendering the ad's `PlatformView` — useful for hiding a native ad behind an open dialog on iOS.
+  On web, `AdBannerSlot` renders nothing and reserves no space at all — a real ad on web is a
+  `position:fixed` div layered on by `index.html` independently of the Flutter canvas, so reserving
+  height here too would just add extra blank space below it.
   `ad_privacy.dart` exposes `adPrivacyOptionsRequired` (a `ValueNotifier<bool>`) and
   `showAdPrivacyOptions()` for a "privacy settings" menu entry.
 - `platform_setup_io.dart` / `platform_setup_stub.dart` — `setupPlatformDatabase()`, a
@@ -87,6 +90,10 @@ specific tag rather than tracking `main`, so bumping is an explicit, per-app dec
   the web `AdBannerSlot` stub; tightened the `google_mobile_ads` constraint to `^9.1.0` (`ageRestrictedTreatment`,
   used since v0.5.0, doesn't exist before 9.1.0 — `^9.0.0` could silently resolve to a version that
   fails to compile).
+- `v0.5.2` — the web `AdBannerSlot` stub now renders nothing and reserves no space, instead of
+  reserving `adBannerReservedHeight`; a real ad on web is laid on top by `index.html` as a
+  `position:fixed` div independent of the Flutter canvas, so reserving height in Flutter as well
+  just added extra blank space beneath it.
 
 ## Development
 

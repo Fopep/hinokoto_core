@@ -5,22 +5,57 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+/// The shared dialog panel: a header bar (title, optional back button,
+/// close button), scrollable content, and an optional actions bar —
+/// styled consistently across apps. Pair with [showAppDialog].
 class AppDialog extends StatelessWidget {
   const AppDialog({
     super.key,
     this.title,
     this.content,
+    this.actions,
+    this.onBack,
+    this.onClose,
+    this.showBackButton = false,
     this.maxWidth = 560,
     this.contentPadding = const EdgeInsets.symmetric(
       horizontal: 20,
       vertical: 16,
     ),
+    this.headerPadding = const EdgeInsets.symmetric(horizontal: 8),
+    this.actionsPadding = const EdgeInsets.fromLTRB(8, 8, 8, 8),
+    this.insetPadding = EdgeInsets.zero,
+    this.scrollController,
   });
 
   final Widget? title;
   final Widget? content;
+
+  /// Shown in a bar below the content, separated by a divider, when
+  /// non-empty.
+  final List<Widget>? actions;
+
+  /// Called when the back button is tapped; defaults to popping the
+  /// current route (falling back to popping the navigator) when
+  /// [showBackButton] is true and this is left unset.
+  final VoidCallback? onBack;
+
+  /// Called when the close button is tapped; defaults to popping the
+  /// current route.
+  final VoidCallback? onClose;
+
+  /// Shows a back button in the header, to its left of the title.
+  final bool showBackButton;
+
   final double maxWidth;
   final EdgeInsetsGeometry contentPadding;
+  final EdgeInsetsGeometry headerPadding;
+  final EdgeInsetsGeometry actionsPadding;
+  final EdgeInsets insetPadding;
+
+  /// A scrollbar is only shown when a controller is given — long dialogs
+  /// where scrolling might otherwise go unnoticed should pass one.
+  final ScrollController? scrollController;
 
   bool get _isCupertino =>
       defaultTargetPlatform == TargetPlatform.iOS ||
@@ -31,15 +66,16 @@ class AppDialog extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+
     final panelColor =
         theme.dialogTheme.backgroundColor ?? scheme.surfaceContainerLow;
-    final barColor = Color.alphaBlend(
+    final barBg = Color.alphaBlend(
       scheme.primary.withValues(alpha: .06),
       panelColor,
     );
 
     return Dialog(
-      insetPadding: EdgeInsets.zero,
+      insetPadding: insetPadding,
       elevation: 0,
       shadowColor: Colors.transparent,
       backgroundColor: Colors.transparent,
@@ -77,27 +113,56 @@ class AppDialog extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ColoredBox(
-                  color: barColor,
-                  child: _DialogHeader(title: title, isCupertino: _isCupertino),
+                  color: barBg,
+                  child: _DialogHeader(
+                    padding: headerPadding,
+                    title: title,
+                    showBack: showBackButton,
+                    isCupertino: _isCupertino,
+                    onBack:
+                        onBack ??
+                        () async {
+                          final nav = Navigator.of(context);
+                          if (await nav.maybePop()) return;
+                          if (nav.canPop()) nav.pop();
+                        },
+                    onClose: onClose ?? () => Navigator.of(context).pop(),
+                  ),
                 ),
                 const Divider(height: 1),
                 Flexible(
                   child: ScrollConfiguration(
                     behavior: const _DialogScrollBehavior(),
-                    child: SingleChildScrollView(
-                      padding: contentPadding,
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: content ?? const SizedBox.shrink(),
+                    child: _MaybeScrollbar(
+                      controller: scrollController,
+                      child: SingleChildScrollView(
+                        controller: scrollController,
+                        padding: contentPadding,
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: content ?? const SizedBox.shrink(),
+                        ),
                       ),
                     ),
                   ),
                 ),
                 ColoredBox(
-                  color: barColor,
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: MediaQuery.viewPaddingOf(context).bottom,
+                  color: barBg,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (actions != null && actions!.isNotEmpty) ...[
+                        const Divider(height: 1),
+                        Padding(
+                          padding: actionsPadding,
+                          child: _ActionsBar(children: actions!),
+                        ),
+                      ],
+                      SizedBox(
+                        width: double.infinity,
+                        height: MediaQuery.viewPaddingOf(context).bottom,
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -110,48 +175,136 @@ class AppDialog extends StatelessWidget {
 }
 
 class _DialogHeader extends StatelessWidget {
-  const _DialogHeader({required this.title, required this.isCupertino});
+  const _DialogHeader({
+    required this.padding,
+    required this.title,
+    required this.showBack,
+    required this.isCupertino,
+    required this.onBack,
+    required this.onClose,
+  });
 
+  final EdgeInsetsGeometry padding;
   final Widget? title;
+  final bool showBack;
   final bool isCupertino;
+  final VoidCallback onBack;
+  final VoidCallback onClose;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 8),
-    child: SizedBox(
-      height: 68,
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    Widget roundIconButton({
+      required Widget icon,
+      required String tooltip,
+      required VoidCallback onPressed,
+    }) => IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      icon: icon,
+      style: IconButton.styleFrom(
+        minimumSize: const Size(44, 44),
+        maximumSize: const Size(44, 44),
+        backgroundColor: scheme.surfaceContainerHighest.withValues(alpha: .7),
+        foregroundColor: scheme.onSurfaceVariant,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: .5)),
+        ),
+      ),
+    );
+
+    return Padding(
+      padding: padding,
+      child: SizedBox(
+        height: 68,
+        child: Row(
+          children: [
+            if (showBack) ...[
+              roundIconButton(
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                onPressed: onBack,
+                icon: Icon(
+                  isCupertino
+                      ? Icons.arrow_back_ios_new_rounded
+                      : Icons.arrow_back_rounded,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 10),
+            ] else
+              const SizedBox(width: 8),
+            Expanded(
+              child: DefaultTextStyle.merge(
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -.25,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: title ?? const SizedBox.shrink(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            IconButton(
+              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+              onPressed: onClose,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+              icon: const Icon(Icons.close, size: 28),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionsBar extends StatelessWidget {
+  const _ActionsBar({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    // A single child (e.g. a whole Column of buttons passed as one action)
+    // renders as-is, skipping the shrink-wrapped Row to avoid overflow.
+    if (children.length == 1) return children.first;
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Row(
         children: [
-          const SizedBox(width: 8),
-          Expanded(
-            child: DefaultTextStyle.merge(
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-                letterSpacing: -.25,
-              ),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: title ?? const SizedBox.shrink(),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          IconButton(
-            tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-            onPressed: () => Navigator.of(context).pop(),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-            icon: Icon(
-              isCupertino ? Icons.close_rounded : Icons.close,
-              size: 28,
-            ),
-          ),
+          for (var i = 0; i < children.length; i++) ...[
+            if (i != 0) const SizedBox(width: 8),
+            children[i],
+          ],
         ],
       ),
-    ),
-  );
+    );
+  }
+}
+
+/// Shows a scrollbar only when the caller supplies a [controller] — long
+/// dialogs where scrolling might otherwise go unnoticed should pass one.
+class _MaybeScrollbar extends StatelessWidget {
+  const _MaybeScrollbar({required this.controller, required this.child});
+
+  final ScrollController? controller;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = controller;
+    if (c == null) return child;
+    return Scrollbar(controller: c, thumbVisibility: true, child: child);
+  }
 }
 
 class _DialogScrollBehavior extends ScrollBehavior {

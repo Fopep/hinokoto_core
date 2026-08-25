@@ -94,6 +94,9 @@ specific tag rather than tracking `main`, so bumping is an explicit, per-app dec
   reserving `adBannerReservedHeight`; a real ad on web is laid on top by `index.html` as a
   `position:fixed` div independent of the Flutter canvas, so reserving height in Flutter as well
   just added extra blank space beneath it.
+- `v0.5.3` — `MenuWithPinnedClose`'s border/divider colors switched from `outlineVariant` to
+  `outline` (with higher alpha) so the panel's edges and header divider read more clearly against
+  the background; added this package's own `analyze`/`test`/`dependency_validator` CI workflow.
 
 ## Development
 

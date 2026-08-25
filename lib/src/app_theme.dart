@@ -23,6 +23,7 @@ ThemeData buildAppTheme(
   Color secondaryColor = AppPalette.purple,
   Color tertiaryColor = AppPalette.orange,
   Color errorColor = AppPalette.red,
+
   /// Passed straight through to [ThemeData.textTheme], and used as the
   /// button label style below — apps with their own type scale should pass
   /// it here rather than `.copyWith`-ing the returned [ThemeData], since a
@@ -133,9 +134,7 @@ ThemeData buildAppTheme(
     // that track; the "off" thumb keeps Flutter's default.
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected)
-            ? Colors.white
-            : null,
+        (states) => states.contains(WidgetState.selected) ? Colors.white : null,
       ),
       trackColor: WidgetStateProperty.resolveWith(
         (states) => states.contains(WidgetState.selected)

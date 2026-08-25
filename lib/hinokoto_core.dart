@@ -8,6 +8,7 @@ export 'src/app_review.dart';
 export 'src/app_theme.dart';
 export 'src/dialog_button.dart';
 export 'src/external_url.dart';
+export 'src/horizontal_scroll_row.dart';
 export 'src/pinned_close_menu.dart';
 export 'src/review_prompt.dart';
 export 'src/selector_row.dart';

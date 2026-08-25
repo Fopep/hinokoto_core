@@ -34,11 +34,29 @@ app's identity. See the consuming app's own `AppConfig` (e.g. `lib/src/app_confi
 
 - `ad_banner*.dart`, `ad_privacy*.dart`, `ad_layout.dart` — AdMob banner + UMP consent flow.
   `AdBannerSlot` falls back to Google's public test ad unit IDs whenever the caller doesn't supply
-  real ones, in both debug and release builds.
+  real ones, in both debug and release builds. `hideAdWidget` keeps the reserved space but skips
+  rendering the ad's `PlatformView` — useful for hiding a native ad behind an open dialog on iOS.
+  `ad_privacy.dart` exposes `adPrivacyOptionsRequired` (a `ValueNotifier<bool>`) and
+  `showAdPrivacyOptions()` for a "privacy settings" menu entry.
 - `platform_setup_io.dart` / `platform_setup_stub.dart` — `setupPlatformDatabase()`, a
   `sqflite_common_ffi` init for Linux/Windows (conditionally a no-op elsewhere).
-- `app_bar_layout.dart` — `AppBackButton`, content-width-aware back button placement.
-- `app_dialog.dart` — `AppDialog` / `showAppDialog`, a generic dialog shell.
+- `app_bar_layout.dart` — `HinokotoAppBar` (a `PreferredSizeWidget` app bar pairing a logo with a
+  menu action) and `AppBackButton`, content-width-aware back button placement.
+- `app_dialog.dart` — `AppDialog` / `showAppDialog`, a generic dialog shell with the shared
+  open/close blur-and-scale animation. `showAppDialog` also takes `onOpen`/`onClose` callbacks (e.g.
+  to hide a native ad overlay while a dialog is up) and an optional `bottomReservedSpace` /
+  `bottomReservedSpaceListenable` pair so the dialog can pad itself clear of bottom-anchored chrome
+  (like an ad banner) — including chrome whose height changes while the dialog is already open.
+- `app_bottom_sheet.dart` — `showAppModalBottomSheet`, a blurred-barrier modal bottom sheet to match
+  `showAppDialog`'s look.
+- `pinned_close_menu.dart` — `MenuWithPinnedClose`, a popup-menu-style panel whose header and close
+  button stay pinned while its items scroll.
+- `dialog_button.dart` — `DialogButton` / `DialogButtonType` (`normal`, `inverse`, `destructive`,
+  `outlined`) and `buildDialogButtonStyle`, the shared button styling for dialog actions.
+- `selector_row.dart` — `SelectorRow<T>` / `SelectorOption<T>`, a horizontal single-choice selector.
+- `switch_row.dart` — `SwitchRow`, a labeled on/off row matching the shared dialog styling.
+- `horizontal_scroll_row.dart` — `HorizontalScrollRow`, a row that scrolls horizontally instead of
+  wrapping when it overflows, with edge fade affordances.
 - `app_theme.dart` — `buildAppTheme(Brightness, {seedColor, primaryColor, onPrimaryColor,
   secondaryColor, tertiaryColor, errorColor})`. Every color defaults to `AppPalette`'s values but is
   overridable — apps are not stuck with the same brand colors just because they share this theme
@@ -59,6 +77,12 @@ specific tag rather than tracking `main`, so bumping is an explicit, per-app dec
   optional constructor-style parameters instead of hardcoded `AppPalette` values, so apps can use a
   different brand palette without forking the theme builder. Defaults are unchanged, so this is a
   backward-compatible addition.
+- `v0.2.1`–`v0.2.3` — incremental fixes to the pieces above.
+- `v0.3.0`–`v0.5.0` (pubspec only; not yet tagged) — added `DialogButton`, `SelectorRow`,
+  `SwitchRow`, `showAppModalBottomSheet`, `MenuWithPinnedClose`, `HinokotoAppBar`, and
+  `HorizontalScrollRow`; extended `AdBannerSlot` with `hideAdWidget` and `showAppDialog` with
+  `onOpen`/`onClose`/`bottomReservedSpace` for apps consolidating their own ad-aware dialog/banner
+  code onto this package. Tag a release once a consuming app is ready to pin to it.
 
 ## Development
 

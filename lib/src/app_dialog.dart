@@ -327,37 +327,114 @@ class _DialogScrollBehavior extends ScrollBehavior {
   ) => child;
 }
 
+/// Shows [AppDialog]-shaped content with the shared open/close blur-and-scale
+/// animation, on top of the standard [showDialog] plumbing.
+///
+/// Two optional hooks exist for callers with app-specific chrome to
+/// coordinate with:
+/// - [onOpen]/[onClose] fire when the dialog opens/finishes closing — e.g.
+///   to hide a native ad overlay for the duration.
+/// - [bottomReservedSpace] (paired with [bottomReservedSpaceListenable] when
+///   that space can change while the dialog is open, such as an ad banner
+///   that loads after the dialog is already showing) reserves extra bottom
+///   inset so the dialog doesn't render behind bottom-anchored chrome.
 Future<T?> showAppDialog<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   bool barrierDismissible = true,
-}) => showDialog<T>(
-  context: context,
-  barrierDismissible: barrierDismissible,
-  barrierColor: const Color(0x99000000),
-  builder: (context) {
-    final dialog = Align(
-      alignment: Alignment.topCenter,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(40, 24, 40, 24),
-        child: builder(context),
-      ),
-    );
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-      builder: (context, value, child) => BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-        child: Opacity(
-          opacity: value,
-          child: Transform.translate(
-            offset: Offset(0, 18 * (1 - value)),
-            child: Transform.scale(scale: .965 + (.035 * value), child: child),
+  bool useSafeArea = true,
+  RouteSettings? routeSettings,
+  Offset? anchorPoint,
+  bool useRootNavigator = true,
+  TraversalEdgeBehavior? traversalEdgeBehavior,
+  VoidCallback? onOpen,
+  VoidCallback? onClose,
+  double Function()? bottomReservedSpace,
+  Listenable? bottomReservedSpaceListenable,
+  EdgeInsets baseInset = const EdgeInsets.fromLTRB(40, 24, 40, 24),
+}) {
+  onOpen?.call();
+  final future = showDialog<T>(
+    context: context,
+    barrierDismissible: barrierDismissible,
+    barrierColor: const Color(0x99000000),
+    useSafeArea: useSafeArea,
+    routeSettings: routeSettings,
+    anchorPoint: anchorPoint,
+    useRootNavigator: useRootNavigator,
+    traversalEdgeBehavior: traversalEdgeBehavior,
+    builder: (context) {
+      final dialog = Align(
+        alignment: Alignment.topCenter,
+        child: _BottomReservedInset(
+          getBottomReservedSpace: bottomReservedSpace,
+          listenable: bottomReservedSpaceListenable,
+          baseInset: baseInset,
+          useSafeArea: useSafeArea,
+          builder: (context, inset) =>
+              Padding(padding: inset, child: builder(context)),
+        ),
+      );
+      return TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: 1),
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        builder: (context, value, child) => BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+          child: Opacity(
+            opacity: value,
+            child: Transform.translate(
+              offset: Offset(0, 18 * (1 - value)),
+              child: Transform.scale(
+                scale: .965 + (.035 * value),
+                child: child,
+              ),
+            ),
           ),
         ),
-      ),
-      child: dialog,
+        child: dialog,
+      );
+    },
+  );
+  return future.whenComplete(() => onClose?.call());
+}
+
+/// Pads [builder]'s content with [baseInset], stretching its bottom edge to
+/// clear [getBottomReservedSpace] (e.g. an ad banner) net of the safe-area
+/// inset already provided by the OS. Rebuilds when [listenable] fires, for
+/// reserved space that can change while the dialog is on screen.
+class _BottomReservedInset extends StatelessWidget {
+  const _BottomReservedInset({
+    required this.getBottomReservedSpace,
+    required this.listenable,
+    required this.baseInset,
+    required this.useSafeArea,
+    required this.builder,
+  });
+
+  final double Function()? getBottomReservedSpace;
+  final Listenable? listenable;
+  final EdgeInsets baseInset;
+  final bool useSafeArea;
+  final Widget Function(BuildContext context, EdgeInsets inset) builder;
+
+  EdgeInsets _resolveInset(BuildContext context) {
+    final target = getBottomReservedSpace?.call() ?? 0.0;
+    if (target <= 0) return baseInset;
+    final safe = MediaQuery.of(context).padding.bottom;
+    final effectiveSafe = useSafeArea ? safe : 0.0;
+    final base = baseInset.bottom;
+    final need = math.max(0.0, target - (effectiveSafe + base));
+    return baseInset.copyWith(bottom: base + need);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ownListenable = listenable;
+    if (ownListenable == null) return builder(context, _resolveInset(context));
+    return AnimatedBuilder(
+      animation: ownListenable,
+      builder: (context, _) => builder(context, _resolveInset(context)),
     );
-  },
-);
+  }
+}

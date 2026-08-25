@@ -10,8 +10,10 @@ void main() {
           builder: (context) => Scaffold(
             body: Center(
               child: ElevatedButton(
-                onPressed: () =>
-                    showAppDialog<void>(context: context, builder: (_) => dialog),
+                onPressed: () => showAppDialog<void>(
+                  context: context,
+                  builder: (_) => dialog,
+                ),
                 child: const Text('open'),
               ),
             ),

@@ -39,30 +39,33 @@ void main() {
     );
   }
 
-  test('elevated/filled/outlined/text buttons use primary/onPrimary colors', () {
-    final theme = buildAppTheme(Brightness.light);
-    final scheme = theme.colorScheme;
+  test(
+    'elevated/filled/outlined/text buttons use primary/onPrimary colors',
+    () {
+      final theme = buildAppTheme(Brightness.light);
+      final scheme = theme.colorScheme;
 
-    Color? resolve(WidgetStateProperty<Color?>? property) =>
-        property?.resolve({});
+      Color? resolve(WidgetStateProperty<Color?>? property) =>
+          property?.resolve({});
 
-    expect(
-      resolve(theme.elevatedButtonTheme.style?.backgroundColor),
-      scheme.primary,
-    );
-    expect(
-      resolve(theme.elevatedButtonTheme.style?.foregroundColor),
-      scheme.onPrimary,
-    );
-    expect(
-      resolve(theme.outlinedButtonTheme.style?.foregroundColor),
-      scheme.primary,
-    );
-    expect(
-      resolve(theme.textButtonTheme.style?.foregroundColor),
-      scheme.primary,
-    );
-  });
+      expect(
+        resolve(theme.elevatedButtonTheme.style?.backgroundColor),
+        scheme.primary,
+      );
+      expect(
+        resolve(theme.elevatedButtonTheme.style?.foregroundColor),
+        scheme.onPrimary,
+      );
+      expect(
+        resolve(theme.outlinedButtonTheme.style?.foregroundColor),
+        scheme.primary,
+      );
+      expect(
+        resolve(theme.textButtonTheme.style?.foregroundColor),
+        scheme.primary,
+      );
+    },
+  );
 
   test('button label style comes from the passed-in textTheme', () {
     const customTextTheme = TextTheme(

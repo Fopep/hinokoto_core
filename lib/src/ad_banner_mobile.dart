@@ -16,12 +16,22 @@ const _iosTestBannerId = 'ca-app-pub-3940256099942544/2934735716';
 const _hideAds = bool.fromEnvironment('HIDE_ADS_FOR_SCREENSHOTS');
 
 class AdBannerSlot extends StatefulWidget {
-  const AdBannerSlot({super.key, this.androidBannerId, this.iosBannerId});
+  const AdBannerSlot({
+    super.key,
+    this.androidBannerId,
+    this.iosBannerId,
+    this.hideAdWidget = false,
+  });
 
   /// Real AdMob banner unit IDs for this app. Leave null/empty to serve
   /// Google's test ads.
   final String? androidBannerId;
   final String? iosBannerId;
+
+  /// While true, the reserved space is kept but the ad (PlatformView) itself
+  /// isn't rendered. Use this to hide the ad behind a dialog on iOS, where
+  /// the PlatformView would otherwise float above dialog content.
+  final bool hideAdWidget;
 
   @override
   State<AdBannerSlot> createState() => _AdBannerSlotState();
@@ -74,7 +84,7 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
     await MobileAds.instance.updateRequestConfiguration(
       RequestConfiguration(
         maxAdContentRating: MaxAdContentRating.g,
-        tagForChildDirectedTreatment: TagForChildDirectedTreatment.no,
+        ageRestrictedTreatment: AgeRestrictedTreatment.unspecified,
       ),
     );
     await MobileAds.instance.initialize();
@@ -132,7 +142,7 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
       child: SizedBox(
         width: double.infinity,
         height: adBannerReservedHeight,
-        child: ad == null
+        child: (ad == null || widget.hideAdWidget)
             ? null
             : Center(
                 child: SizedBox(

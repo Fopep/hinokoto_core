@@ -16,7 +16,7 @@ dependencies:
   hinokoto_core:
     git:
       url: https://github.com/Fopep/hinokoto_core.git
-      ref: v0.5.0
+      ref: v0.5.1
 ```
 
 Then import the single barrel file — do not import files under `lib/src/` directly:
@@ -83,6 +83,10 @@ specific tag rather than tracking `main`, so bumping is an explicit, per-app dec
   `HinokotoAppBar`, and `HorizontalScrollRow`; extended `AdBannerSlot` with `hideAdWidget` and
   `showAppDialog` with `onOpen`/`onClose`/`bottomReservedSpace` for apps consolidating their own
   ad-aware dialog/banner code onto this package.
+- `v0.5.1` — direct tests for `HorizontalScrollRow`, `SelectorRow`, `showAppModalBottomSheet`, and
+  the web `AdBannerSlot` stub; tightened the `google_mobile_ads` constraint to `^9.1.0` (`ageRestrictedTreatment`,
+  used since v0.5.0, doesn't exist before 9.1.0 — `^9.0.0` could silently resolve to a version that
+  fails to compile).
 
 ## Development
 

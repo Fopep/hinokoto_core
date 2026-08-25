@@ -1,7 +1,7 @@
 name: hinokoto_core
 description: "Shared Flutter foundation for Hinokoto Studio apps: ad banners/consent, platform setup, and common UI chrome."
 publish_to: 'none'
-version: 0.5.0
+version: 0.5.1
 
 environment:
   sdk: ^3.12.2
@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  google_mobile_ads: ^9.0.0
+  google_mobile_ads: ^9.1.0
   app_tracking_transparency: ^2.0.6+1
   sqflite_common_ffi: ^2.4.2
   flutter_svg: ^2.3.0

@@ -5,6 +5,7 @@ export 'src/app_bar_layout.dart';
 export 'src/app_dialog.dart';
 export 'src/app_review.dart';
 export 'src/app_theme.dart';
+export 'src/dialog_button.dart';
 export 'src/external_url.dart';
 export 'src/pinned_close_menu.dart';
 export 'src/review_prompt.dart';

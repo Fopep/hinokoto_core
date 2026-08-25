@@ -39,6 +39,44 @@ void main() {
     );
   }
 
+  test('elevated/filled/outlined/text buttons use primary/onPrimary colors', () {
+    final theme = buildAppTheme(Brightness.light);
+    final scheme = theme.colorScheme;
+
+    Color? resolve(WidgetStateProperty<Color?>? property) =>
+        property?.resolve({});
+
+    expect(
+      resolve(theme.elevatedButtonTheme.style?.backgroundColor),
+      scheme.primary,
+    );
+    expect(
+      resolve(theme.elevatedButtonTheme.style?.foregroundColor),
+      scheme.onPrimary,
+    );
+    expect(
+      resolve(theme.outlinedButtonTheme.style?.foregroundColor),
+      scheme.primary,
+    );
+    expect(
+      resolve(theme.textButtonTheme.style?.foregroundColor),
+      scheme.primary,
+    );
+  });
+
+  test('button label style comes from the passed-in textTheme', () {
+    const customTextTheme = TextTheme(
+      labelLarge: TextStyle(fontSize: 22, fontStyle: FontStyle.italic),
+    );
+    final theme = buildAppTheme(Brightness.light, textTheme: customTextTheme);
+
+    final labelStyle = theme.elevatedButtonTheme.style?.textStyle?.resolve({});
+
+    expect(labelStyle?.fontSize, 22);
+    expect(labelStyle?.fontStyle, FontStyle.italic);
+    expect(labelStyle?.fontWeight, FontWeight.w700);
+  });
+
   test('every color is overridable so apps are not stuck with AppPalette', () {
     const seed = Color(0xFF00AA00);
     const secondary = Color(0xFF00BB00);

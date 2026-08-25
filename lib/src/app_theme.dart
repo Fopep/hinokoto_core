@@ -23,6 +23,11 @@ ThemeData buildAppTheme(
   Color secondaryColor = AppPalette.purple,
   Color tertiaryColor = AppPalette.orange,
   Color errorColor = AppPalette.red,
+  /// Passed straight through to [ThemeData.textTheme], and used as the
+  /// button label style below — apps with their own type scale should pass
+  /// it here rather than `.copyWith`-ing the returned [ThemeData], since a
+  /// later `.copyWith` wouldn't reach the button styles already built here.
+  TextTheme? textTheme,
 }) {
   final isDark = brightness == Brightness.dark;
   final surface = isDark ? const Color(0xFF101418) : const Color(0xFFF7F9FB);
@@ -54,11 +59,20 @@ ThemeData buildAppTheme(
     brightness: Brightness.dark,
   ).copyWith(primary: primaryColor ?? seedColor);
 
+  // Button label text pulls from the app's own type scale when given one;
+  // when null, ButtonStyleButton falls back to Theme.of(context)'s default
+  // labelLarge at build time, so apps without a custom textTheme see no
+  // change from leaving this null.
+  final buttonLabelStyle = textTheme?.labelLarge?.copyWith(
+    fontWeight: FontWeight.w700,
+  );
+
   return ThemeData(
     colorScheme: scheme,
     brightness: brightness,
     scaffoldBackgroundColor: surface,
     useMaterial3: true,
+    textTheme: textTheme,
     appBarTheme: AppBarTheme(
       centerTitle: true,
       backgroundColor: surface,
@@ -127,6 +141,66 @@ ThemeData buildAppTheme(
         (states) => states.contains(WidgetState.selected)
             ? switchColors.primaryContainer
             : null,
+      ),
+    ),
+    iconButtonTheme: IconButtonThemeData(
+      style: ButtonStyle(
+        mouseCursor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.disabled)
+              ? SystemMouseCursors.basic
+              : SystemMouseCursors.click,
+        ),
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
+        disabledBackgroundColor: scheme.onSurface.withValues(alpha: 0.12),
+        disabledForegroundColor: scheme.onSurface.withValues(alpha: 0.38),
+        elevation: 2,
+        shadowColor: scheme.primary.withValues(alpha: 0.45),
+        minimumSize: const Size(48, 48),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        textStyle: buttonLabelStyle,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        minimumSize: const Size(48, 48),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        textStyle: buttonLabelStyle,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: scheme.primary,
+        side: BorderSide(color: scheme.primary.withValues(alpha: 0.78)),
+        minimumSize: const Size(48, 48),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        textStyle: buttonLabelStyle,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: scheme.primary,
+        minimumSize: const Size(48, 44),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        textStyle: buttonLabelStyle,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      ),
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: isDark ? const Color(0xFF181D22) : Colors.white,
+      modalBackgroundColor: isDark ? const Color(0xFF181D22) : Colors.white,
+      surfaceTintColor: Colors.transparent,
+      showDragHandle: true,
+      dragHandleColor: scheme.outlineVariant,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
     ),
   );

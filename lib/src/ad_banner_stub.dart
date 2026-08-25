@@ -1,7 +1,5 @@
 import 'package:flutter/widgets.dart';
 
-import 'ad_layout.dart';
-
 class AdBannerSlot extends StatelessWidget {
   const AdBannerSlot({
     super.key,
@@ -18,5 +16,8 @@ class AdBannerSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      const SizedBox(width: double.infinity, height: adBannerReservedHeight);
+      // Web の実広告は index.html 側の position:fixed な div が
+      // ビューポート下端に独立して重なるため、Flutter 側で高さを
+      // 確保するとページが余分に縦へ伸びて二重に空白ができる。
+      const SizedBox.shrink();
 }

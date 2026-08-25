@@ -16,7 +16,7 @@ dependencies:
   hinokoto_core:
     git:
       url: https://github.com/Fopep/hinokoto_core.git
-      ref: v0.1.0
+      ref: v0.5.0
 ```
 
 Then import the single barrel file — do not import files under `lib/src/` directly:
@@ -78,11 +78,11 @@ specific tag rather than tracking `main`, so bumping is an explicit, per-app dec
   different brand palette without forking the theme builder. Defaults are unchanged, so this is a
   backward-compatible addition.
 - `v0.2.1`–`v0.2.3` — incremental fixes to the pieces above.
-- `v0.3.0`–`v0.5.0` (pubspec only; not yet tagged) — added `DialogButton`, `SelectorRow`,
-  `SwitchRow`, `showAppModalBottomSheet`, `MenuWithPinnedClose`, `HinokotoAppBar`, and
-  `HorizontalScrollRow`; extended `AdBannerSlot` with `hideAdWidget` and `showAppDialog` with
-  `onOpen`/`onClose`/`bottomReservedSpace` for apps consolidating their own ad-aware dialog/banner
-  code onto this package. Tag a release once a consuming app is ready to pin to it.
+- `v0.5.0` (`v0.3.0`/`v0.4.0` were pubspec-only bumps, not separately tagged) — added
+  `DialogButton`, `SelectorRow`, `SwitchRow`, `showAppModalBottomSheet`, `MenuWithPinnedClose`,
+  `HinokotoAppBar`, and `HorizontalScrollRow`; extended `AdBannerSlot` with `hideAdWidget` and
+  `showAppDialog` with `onOpen`/`onClose`/`bottomReservedSpace` for apps consolidating their own
+  ad-aware dialog/banner code onto this package.
 
 ## Development
 

@@ -16,7 +16,7 @@ dependencies:
   hinokoto_core:
     git:
       url: https://github.com/Fopep/hinokoto_core.git
-      ref: v0.5.2
+      ref: v0.6.0
 ```
 
 Then import the single barrel file — do not import files under `lib/src/` directly:
@@ -69,6 +69,13 @@ app's identity. See the consuming app's own `AppConfig` (e.g. `lib/src/app_confi
   `isAndroidPlatform`, `isIosPlatform`.
 - `external_url.dart` — `openUrlWithFallbackSnackbar`.
 - `review_prompt.dart` — `recordAppLaunch()`, launch-count-based review-prompt milestones.
+- `web_ads_codegen.dart` (not exported from `hinokoto_core.dart` — a build-time tool API, not a
+  runtime widget API) + `bin/apply_web_ads.dart` — shared codegen for the AdSense `<div
+  id="adsense-bottom-banner">` block in a consuming app's `web/index.html`. Run `dart run
+  hinokoto_core:apply_web_ads` (optionally `--check`) from the app's repo root; it reads
+  `web.adsense_client`/`adsense_slot`/`adsense_enabled` from that app's own `app_settings.yaml` and
+  regenerates the region between `<!-- ADSENSE:BEGIN -->`/`<!-- ADSENSE:END -->` markers in
+  `web/index.html`. See "Usage" above for why AdSense itself isn't a widget in this package.
 
 ## Versioning
 
@@ -97,6 +104,10 @@ specific tag rather than tracking `main`, so bumping is an explicit, per-app dec
 - `v0.5.3` — `MenuWithPinnedClose`'s border/divider colors switched from `outlineVariant` to
   `outline` (with higher alpha) so the panel's edges and header divider read more clearly against
   the background; added this package's own `analyze`/`test`/`dependency_validator` CI workflow.
+- `v0.6.0` — added `bin/apply_web_ads.dart` / `lib/web_ads_codegen.dart`, a shared AdSense
+  `web/index.html` codegen tool apps can invoke via `dart run hinokoto_core:apply_web_ads`,
+  extracted from `app_template`'s local `tool/apply_settings.dart` so every app generates
+  byte-identical AdSense markup from its own `app_settings.yaml`.
 
 ## Development
 

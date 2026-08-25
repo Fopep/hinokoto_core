@@ -15,6 +15,8 @@ class MenuWithPinnedClose extends StatefulWidget {
     required this.itemBuilder,
     required this.onSelected,
     this.iconSize = 24,
+    this.menuIcon = Icons.menu_rounded,
+    this.closeIcon = Icons.close_rounded,
     this.constraints,
     this.menuWidth = 360,
     this.barrierColor = const Color(0x7A000000),
@@ -31,6 +33,14 @@ class MenuWithPinnedClose extends StatefulWidget {
   final ValueChanged<String> onSelected;
 
   final double iconSize;
+
+  /// Shown on the trigger button while the panel is closed.
+  final IconData menuIcon;
+
+  /// Shown on the trigger button while the panel is open, and on the
+  /// panel's own close button.
+  final IconData closeIcon;
+
   final BoxConstraints? constraints;
   final double menuWidth;
   final Color barrierColor;
@@ -160,6 +170,7 @@ class _MenuWithPinnedCloseState extends State<MenuWithPinnedClose> {
                   bottom: false,
                   child: _MenuPanel(
                     header: widget.header,
+                    closeIcon: widget.closeIcon,
                     maxHeight: menuMaxHeight,
                     entries: widget.itemBuilder(dialogContext),
                   ),
@@ -237,7 +248,7 @@ class _MenuWithPinnedCloseState extends State<MenuWithPinnedClose> {
                 child: ScaleTransition(scale: animation, child: child),
               ),
               child: Icon(
-                _isOpen ? Icons.close_rounded : Icons.menu_rounded,
+                _isOpen ? widget.closeIcon : widget.menuIcon,
                 key: ValueKey(_isOpen),
                 size: widget.iconSize,
               ),
@@ -252,11 +263,13 @@ class _MenuWithPinnedCloseState extends State<MenuWithPinnedClose> {
 class _MenuPanel extends StatelessWidget {
   const _MenuPanel({
     required this.header,
+    required this.closeIcon,
     required this.maxHeight,
     required this.entries,
   });
 
   final Widget header;
+  final IconData closeIcon;
   final double maxHeight;
   final List<PopupMenuEntry<String>> entries;
 
@@ -296,6 +309,7 @@ class _MenuPanel extends StatelessWidget {
               children: [
                 _MenuPanelHeader(
                   header: header,
+                  closeIcon: closeIcon,
                   onClose: () =>
                       Navigator.of(context, rootNavigator: true).maybePop(),
                 ),
@@ -350,9 +364,14 @@ class _MenuPanel extends StatelessWidget {
 }
 
 class _MenuPanelHeader extends StatelessWidget {
-  const _MenuPanelHeader({required this.header, required this.onClose});
+  const _MenuPanelHeader({
+    required this.header,
+    required this.closeIcon,
+    required this.onClose,
+  });
 
   final Widget header;
+  final IconData closeIcon;
   final VoidCallback onClose;
 
   @override
@@ -379,7 +398,7 @@ class _MenuPanelHeader extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: header),
-          _CloseButton(onPressed: onClose),
+          _CloseButton(icon: closeIcon, onPressed: onClose),
         ],
       ),
     );
@@ -387,8 +406,9 @@ class _MenuPanelHeader extends StatelessWidget {
 }
 
 class _CloseButton extends StatelessWidget {
-  const _CloseButton({required this.onPressed});
+  const _CloseButton({required this.icon, required this.onPressed});
 
+  final IconData icon;
   final VoidCallback onPressed;
 
   @override
@@ -397,7 +417,7 @@ class _CloseButton extends StatelessWidget {
 
     return IconButton(
       onPressed: onPressed,
-      icon: Icon(Icons.close_rounded, size: 23, color: colorScheme.onSurface),
+      icon: Icon(icon, size: 23, color: colorScheme.onSurface),
     );
   }
 }

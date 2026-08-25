@@ -68,4 +68,40 @@ void main() {
 
     expect(find.text('Item A'), findsNothing);
   });
+
+  testWidgets('menuIcon/closeIconを指定するとデフォルトのアイコンの代わりに使われる', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(
+            actions: [
+              MenuWithPinnedClose(
+                header: const Text('App Logo'),
+                menuIcon: Icons.apps,
+                closeIcon: Icons.cancel,
+                itemBuilder: (context) => const [
+                  PopupMenuItem(value: 'a', child: Text('Item A')),
+                ],
+                onSelected: (_) {},
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byIcon(Icons.apps), findsOneWidget);
+    expect(find.byIcon(Icons.menu_rounded), findsNothing);
+
+    await tester.tap(find.byIcon(Icons.apps));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('app-menu-panel')),
+        matching: find.byIcon(Icons.cancel),
+      ),
+      findsOneWidget,
+    );
+  });
 }

@@ -3,6 +3,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hinokoto_core/hinokoto_core.dart';
 
 void main() {
+  testWidgets('HinokotoAppBarはロゴをタイトルに、menuをactionsに配置する', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          appBar: HinokotoAppBar(
+            logo: const Text('Logo'),
+            menu: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Logo'), findsOneWidget);
+    expect(find.byIcon(Icons.menu), findsOneWidget);
+
+    final appBar = tester.widget<AppBar>(find.byType(AppBar));
+    expect(appBar.centerTitle, isTrue);
+  });
+
   testWidgets('広い画面では戻るボタンをコンテンツ最大幅の左端に配置する', (tester) async {
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1;

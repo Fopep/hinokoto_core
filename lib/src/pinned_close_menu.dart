@@ -289,7 +289,7 @@ class _MenuPanel extends StatelessWidget {
           color: backgroundColor.withValues(alpha: 0.98),
           borderRadius: radius,
           border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.55),
+            color: colorScheme.outline.withValues(alpha: 0.7),
           ),
           boxShadow: [
             BoxShadow(
@@ -334,8 +334,8 @@ class _MenuPanel extends StatelessWidget {
                             ),
                           ),
                           dividerTheme: DividerThemeData(
-                            color: colorScheme.outlineVariant.withValues(
-                              alpha: 0.35,
+                            color: colorScheme.outline.withValues(
+                              alpha: 0.5,
                             ),
                             thickness: 1,
                           ),
@@ -391,7 +391,7 @@ class _MenuPanelHeader extends StatelessWidget {
         color: barBg,
         border: Border(
           bottom: BorderSide(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+            color: colorScheme.outline.withValues(alpha: 0.55),
           ),
         ),
       ),

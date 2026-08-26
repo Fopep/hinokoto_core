@@ -65,6 +65,90 @@ void main() {
     expect(buttonLeft, (1400 - appContentMaxWidth) / 2);
   });
 
+  testWidgets('HinokotoAppBarShadowは任意のAppBarに下向きの影を付ける', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          appBar: HinokotoAppBarShadow(
+            child: AppBar(title: const Text('Plain')),
+          ),
+        ),
+      ),
+    );
+
+    final decoratedBox = tester.widget<DecoratedBox>(
+      find
+          .ancestor(
+            of: find.byType(AppBar),
+            matching: find.byType(DecoratedBox),
+          )
+          .first,
+    );
+    final decoration = decoratedBox.decoration as BoxDecoration;
+    final shadow = decoration.boxShadow!.single;
+
+    expect(shadow.offset, const Offset(0, 3));
+    expect(shadow.blurRadius, 12);
+  });
+
+  testWidgets('HinokotoAppBarShadowはshowShadow:falseで影を付けない', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          appBar: HinokotoAppBarShadow(
+            showShadow: false,
+            child: AppBar(title: const Text('Plain')),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      find
+          .ancestor(
+            of: find.byType(AppBar),
+            matching: find.byType(DecoratedBox),
+          )
+          .evaluate(),
+      isEmpty,
+    );
+  });
+
+  testWidgets('HinokotoSliverAppBarShadowはpinnedなsliverとして影付きAppBarを表示する', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CustomScrollView(
+            slivers: [
+              HinokotoSliverAppBarShadow(
+                child: AppBar(title: const Text('Sliver Title')),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 2000)),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Sliver Title'), findsOneWidget);
+
+    final decoratedBox = tester.widget<DecoratedBox>(
+      find
+          .ancestor(
+            of: find.byType(AppBar),
+            matching: find.byType(DecoratedBox),
+          )
+          .first,
+    );
+    final decoration = decoratedBox.decoration as BoxDecoration;
+    final shadow = decoration.boxShadow!.single;
+
+    expect(shadow.offset, const Offset(0, 3));
+    expect(shadow.blurRadius, 12);
+  });
+
   testWidgets(
     'HinokotoPinnedHeaderはpinnedなSliverAppBarとしてsurfaceTintColorを持つ',
     (tester) async {

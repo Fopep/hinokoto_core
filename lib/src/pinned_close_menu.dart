@@ -5,6 +5,32 @@ import 'package:flutter/material.dart';
 
 import 'app_bar_layout.dart';
 
+/// A single icon+label row for use as an entry in [MenuWithPinnedClose]'s
+/// `itemBuilder`, styled to match the panel's menu items.
+class HinokotoAppMenuItem extends PopupMenuItem<String> {
+  HinokotoAppMenuItem({
+    super.key,
+    required String value,
+    required IconData icon,
+    required String label,
+  }) : super(
+         value: value,
+         child: Builder(
+           builder: (context) => ListTile(
+             contentPadding: EdgeInsets.zero,
+             leading: Icon(icon),
+             title: Text(
+               label,
+               style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                 fontSize: 17,
+                 fontWeight: FontWeight.w500,
+               ),
+             ),
+           ),
+         ),
+       );
+}
+
 /// A menu button that opens a top-right-anchored popup panel with a
 /// branded header (pinned close button) instead of Flutter's default
 /// [PopupMenuButton] dropdown.

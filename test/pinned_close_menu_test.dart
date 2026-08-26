@@ -104,4 +104,41 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('HinokotoAppMenuItemはアイコンとラベルを表示し選択時にvalueを返す', (tester) async {
+    String? selected;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(
+            actions: [
+              MenuWithPinnedClose(
+                header: const Text('App Logo'),
+                itemBuilder: (context) => [
+                  HinokotoAppMenuItem(
+                    value: 'about',
+                    icon: Icons.info_outline,
+                    label: 'About',
+                  ),
+                ],
+                onSelected: (value) => selected = value,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byIcon(Icons.menu_rounded));
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.info_outline), findsOneWidget);
+    expect(find.text('About'), findsOneWidget);
+
+    await tester.tap(find.text('About'));
+    await tester.pumpAndSettle();
+
+    expect(selected, 'about');
+  });
 }

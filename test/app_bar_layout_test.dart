@@ -64,6 +64,39 @@ void main() {
     final buttonLeft = tester.getTopLeft(find.byTooltip('Back')).dx;
     expect(buttonLeft, (1400 - appContentMaxWidth) / 2);
   });
+
+  testWidgets(
+    'HinokotoPinnedHeaderはpinnedなSliverAppBarとしてsurfaceTintColorを持つ',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomScrollView(
+              slivers: [
+                HinokotoPinnedHeader(
+                  key: const Key('pinned-heading'),
+                  toolbarHeight: 72,
+                  child: const Text('Heading'),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 2000)),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final sliverAppBar = tester.widget<SliverAppBar>(
+        find.descendant(
+          of: find.byKey(const Key('pinned-heading')),
+          matching: find.byType(SliverAppBar),
+        ),
+      );
+      expect(sliverAppBar.pinned, isTrue);
+      expect(sliverAppBar.toolbarHeight, 72);
+      expect(sliverAppBar.surfaceTintColor, isNotNull);
+      expect(find.text('Heading'), findsOneWidget);
+    },
+  );
 }
 
 class _TestPage extends StatelessWidget {

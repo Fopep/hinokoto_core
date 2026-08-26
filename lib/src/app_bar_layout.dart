@@ -48,6 +48,40 @@ class HinokotoAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
+/// A pinned sliver header that stays fixed at the top of a [CustomScrollView]
+/// (e.g. a detail screen's title bar). It has no border of its own; instead
+/// it relies on Material 3's built-in "scrolled under" tint
+/// (via [SliverAppBar.surfaceTintColor]) to shade slightly darker once
+/// content has scrolled beneath it, hinting at the scroll position without a
+/// persistent divider line.
+///
+/// [key] identifies this wrapper, not the inner [SliverAppBar] — locate the
+/// latter in tests with `find.descendant(of: find.byKey(...), matching:
+/// find.byType(SliverAppBar))`.
+class HinokotoPinnedHeader extends StatelessWidget {
+  const HinokotoPinnedHeader({
+    super.key,
+    required this.child,
+    this.toolbarHeight = 64,
+  });
+
+  final Widget child;
+  final double toolbarHeight;
+
+  @override
+  Widget build(BuildContext context) => SliverAppBar(
+    pinned: true,
+    primary: false,
+    automaticallyImplyLeading: false,
+    centerTitle: false,
+    titleSpacing: 0,
+    toolbarHeight: toolbarHeight,
+    backgroundColor: Theme.of(context).colorScheme.surface,
+    surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+    title: child,
+  );
+}
+
 class AppBackButton extends StatelessWidget {
   const AppBackButton({super.key, this.onPressed});
 

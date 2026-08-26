@@ -32,6 +32,10 @@ ThemeData buildAppTheme(
 }) {
   final isDark = brightness == Brightness.dark;
   final surface = isDark ? const Color(0xFF101418) : const Color(0xFFF7F9FB);
+  // The "floating" card/nav-bar surface — used by the app bar, bottom
+  // control bar, cards, and sheets so they all read as the same elevated
+  // layer above the scaffold background.
+  final surfaceCard = isDark ? const Color(0xFF181D22) : Colors.white;
   final inputBorderColor = isDark
       ? const Color(0xFF52616D)
       : const Color(0xFFB8C4CE);
@@ -76,14 +80,14 @@ ThemeData buildAppTheme(
     textTheme: textTheme,
     appBarTheme: AppBarTheme(
       centerTitle: true,
-      backgroundColor: surface,
+      backgroundColor: surfaceCard,
       foregroundColor: scheme.onSurface,
       surfaceTintColor: Colors.transparent,
     ),
     cardTheme: CardThemeData(
       elevation: 0,
       margin: EdgeInsets.zero,
-      color: isDark ? const Color(0xFF181D22) : Colors.white,
+      color: surfaceCard,
       shape: RoundedRectangleBorder(
         borderRadius: const BorderRadius.all(Radius.circular(18)),
         side: BorderSide(
@@ -121,7 +125,7 @@ ThemeData buildAppTheme(
       ),
     ),
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: isDark ? const Color(0xFF181D22) : Colors.white,
+      backgroundColor: surfaceCard,
       indicatorColor: seedColor.withValues(alpha: isDark ? .28 : .20),
     ),
     dividerColor: isDark ? const Color(0xFF354049) : const Color(0xFFDDE4EA),
@@ -193,8 +197,8 @@ ThemeData buildAppTheme(
       ),
     ),
     bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: isDark ? const Color(0xFF181D22) : Colors.white,
-      modalBackgroundColor: isDark ? const Color(0xFF181D22) : Colors.white,
+      backgroundColor: surfaceCard,
+      modalBackgroundColor: surfaceCard,
       surfaceTintColor: Colors.transparent,
       showDragHandle: true,
       dragHandleColor: scheme.outlineVariant,

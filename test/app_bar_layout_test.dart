@@ -196,7 +196,10 @@ void main() {
       expect(sliverAppBar.toolbarHeight, 72);
       expect(sliverAppBar.backgroundColor, expectedBackground);
       expect(sliverAppBar.foregroundColor, scheme.onSurface);
-      expect(sliverAppBar.surfaceTintColor, scheme.surfaceTint);
+      expect(sliverAppBar.elevation, 0);
+      expect(sliverAppBar.scrolledUnderElevation, 0);
+      expect(sliverAppBar.shadowColor, Colors.transparent);
+      expect(sliverAppBar.surfaceTintColor, Colors.transparent);
       expect(find.text('Heading'), findsOneWidget);
     });
   }

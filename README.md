@@ -121,6 +121,8 @@ specific tag rather than tracking `main`, so bumping is an explicit, per-app dec
   track with a white thumb in both brightness modes.
 - `v0.8.2` — gave `HinokotoPinnedHeader` a subtle brand-tinted background and high-contrast
   foreground in both brightness modes, with optional per-instance color overrides.
+- `v0.8.3` — kept `HinokotoPinnedHeader`'s background constant while scrolling by removing its
+  scrolled-under tint and elevation.
 
 ## Development
 

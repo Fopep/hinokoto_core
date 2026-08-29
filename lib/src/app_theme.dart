@@ -11,18 +11,24 @@ abstract final class AppPalette {
   static const colors = [slate, blue, green, orange, purple];
 }
 
-/// Builds a Material 3 [ThemeData]. The color arguments default to
-/// [AppPalette]'s values, but every app using this shared theme need not
-/// share the same brand colors — pass your own to change them without
-/// forking this function.
+/// Builds a Material 3 [ThemeData] from a coherent tonal palette.
+///
+/// [seedColor] identifies the brand, while Material derives brightness-aware
+/// role colors (including matching `on*` foregrounds) from it. Individual
+/// role overrides remain available, and [colorScheme] lets an app supply a
+/// complete scheme without forking the shared component themes.
 ThemeData buildAppTheme(
   Brightness brightness, {
   Color seedColor = AppPalette.blue,
   Color? primaryColor,
-  Color onPrimaryColor = const Color(0xFF00243A),
-  Color secondaryColor = AppPalette.purple,
-  Color tertiaryColor = AppPalette.orange,
-  Color errorColor = AppPalette.red,
+  Color? onPrimaryColor,
+  Color? secondaryColor,
+  Color? onSecondaryColor,
+  Color? tertiaryColor,
+  Color? onTertiaryColor,
+  Color? errorColor,
+  Color? onErrorColor,
+  ColorScheme? colorScheme,
 
   /// Passed straight through to [ThemeData.textTheme], and used as the
   /// button label style below — apps with their own type scale should pass
@@ -30,39 +36,49 @@ ThemeData buildAppTheme(
   /// later `.copyWith` wouldn't reach the button styles already built here.
   TextTheme? textTheme,
 }) {
+  if (colorScheme != null && colorScheme.brightness != brightness) {
+    throw ArgumentError.value(
+      colorScheme.brightness,
+      'colorScheme.brightness',
+      'must match brightness ($brightness)',
+    );
+  }
   final isDark = brightness == Brightness.dark;
-  final surface = isDark ? const Color(0xFF101418) : const Color(0xFFF7F9FB);
-  // The "floating" card/nav-bar surface — used by the app bar, bottom
-  // control bar, cards, and sheets so they all read as the same elevated
-  // layer above the scaffold background.
-  final surfaceCard = isDark ? const Color(0xFF181D22) : Colors.white;
-  final inputBorderColor = isDark
-      ? const Color(0xFF52616D)
-      : const Color(0xFFB8C4CE);
-  final disabledInputBorderColor = isDark
-      ? const Color(0xFF303941)
-      : const Color(0xFFDDE4EA);
-  final scheme =
-      ColorScheme.fromSeed(
-        seedColor: seedColor,
-        brightness: brightness,
-        surface: surface,
-      ).copyWith(
-        primary: primaryColor ?? seedColor,
-        onPrimary: onPrimaryColor,
-        secondary: secondaryColor,
-        tertiary: tertiaryColor,
-        error: errorColor,
-      );
-  // Always derived from dark mode's tonal palette, regardless of the
-  // theme's actual brightness — dark mode's primary-container pair reads
-  // well against both a light and a dark background, whereas light mode's
-  // own (much paler) primary-container looks washed out. Used for switches
-  // only, so they look identical in both themes.
-  final switchColors = ColorScheme.fromSeed(
-    seedColor: seedColor,
-    brightness: Brightness.dark,
-  ).copyWith(primary: primaryColor ?? seedColor);
+  var scheme =
+      colorScheme ??
+      ColorScheme.fromSeed(seedColor: seedColor, brightness: brightness);
+
+  // A role override without its foreground used to leave an unrelated
+  // generated `on*` color behind. Pick the higher-contrast neutral instead,
+  // while retaining the supplied scheme's pair when no override is made.
+  scheme = scheme.copyWith(
+    primary: primaryColor,
+    onPrimary:
+        onPrimaryColor ??
+        (primaryColor == null ? null : _contrastingForeground(primaryColor)),
+    secondary: secondaryColor,
+    onSecondary:
+        onSecondaryColor ??
+        (secondaryColor == null
+            ? null
+            : _contrastingForeground(secondaryColor)),
+    tertiary: tertiaryColor,
+    onTertiary:
+        onTertiaryColor ??
+        (tertiaryColor == null ? null : _contrastingForeground(tertiaryColor)),
+    error: errorColor,
+    onError:
+        onErrorColor ??
+        (errorColor == null ? null : _contrastingForeground(errorColor)),
+  );
+
+  final surface = scheme.surface;
+  // Material's container roles carry a subtle seed tint and change tone with
+  // brightness, keeping the whole hierarchy harmonious without hand-tuned
+  // light/dark hex pairs.
+  final surfaceCard = scheme.surfaceContainerLow;
+  final inputBorderColor = scheme.outline;
+  final disabledInputBorderColor = scheme.outlineVariant.withValues(alpha: .62);
 
   // Button label text pulls from the app's own type scale when given one;
   // when null, ButtonStyleButton falls back to Theme.of(context)'s default
@@ -90,14 +106,16 @@ ThemeData buildAppTheme(
       color: surfaceCard,
       shape: RoundedRectangleBorder(
         borderRadius: const BorderRadius.all(Radius.circular(18)),
-        side: BorderSide(
-          color: isDark ? const Color(0xFF303941) : const Color(0xFFDDE4EA),
-        ),
+        side: BorderSide(color: scheme.outlineVariant),
       ),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: scheme.surfaceContainerHigh,
+      surfaceTintColor: Colors.transparent,
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: isDark ? const Color(0xFF20272D) : Colors.white,
+      fillColor: scheme.surfaceContainerLowest,
       hoverColor: scheme.primary.withValues(alpha: isDark ? .08 : .04),
       border: OutlineInputBorder(
         borderRadius: const BorderRadius.all(Radius.circular(16)),
@@ -126,23 +144,20 @@ ThemeData buildAppTheme(
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: surfaceCard,
-      indicatorColor: seedColor.withValues(alpha: isDark ? .28 : .20),
+      indicatorColor: scheme.primaryContainer,
     ),
-    dividerColor: isDark ? const Color(0xFF354049) : const Color(0xFFDDE4EA),
-    // Material 3's default switch fills the whole "on" track with
-    // colorScheme.primary and a near-opposite thumb color, which reads as
-    // quite intense against this palette's saturated seed colors. The
-    // softer primary-container pair keeps switches on-brand without the
-    // harsh contrast; returning null for other states defers to Flutter's
-    // built-in Material 3 defaults. The "on" thumb is plain white against
-    // that track; the "off" thumb keeps Flutter's default.
+    dividerColor: scheme.outlineVariant,
+    // Use a matching container/on-container pair: it is softer than a solid
+    // primary track and remains legible in both brightness modes.
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected) ? Colors.white : null,
+        (states) => states.contains(WidgetState.selected)
+            ? scheme.onPrimaryContainer
+            : null,
       ),
       trackColor: WidgetStateProperty.resolveWith(
         (states) => states.contains(WidgetState.selected)
-            ? switchColors.primaryContainer
+            ? scheme.primaryContainer
             : null,
       ),
     ),
@@ -162,7 +177,7 @@ ThemeData buildAppTheme(
         disabledBackgroundColor: scheme.onSurface.withValues(alpha: 0.12),
         disabledForegroundColor: scheme.onSurface.withValues(alpha: 0.38),
         elevation: 2,
-        shadowColor: scheme.primary.withValues(alpha: 0.45),
+        shadowColor: scheme.primary.withValues(alpha: 0.28),
         minimumSize: const Size(48, 48),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         textStyle: buttonLabelStyle,
@@ -207,4 +222,11 @@ ThemeData buildAppTheme(
       ),
     ),
   );
+}
+
+Color _contrastingForeground(Color background) {
+  final luminance = background.computeLuminance();
+  final blackContrast = (luminance + .05) / .05;
+  final whiteContrast = 1.05 / (luminance + .05);
+  return blackContrast >= whiteContrast ? Colors.black : Colors.white;
 }

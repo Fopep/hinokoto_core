@@ -32,10 +32,7 @@ class SelectorRow<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final selectColor = isDark
-        ? Colors.black.withValues(alpha: 0.3)
-        : Colors.white.withValues(alpha: 0.5);
+    final scheme = Theme.of(context).colorScheme;
 
     return Row(
       children: [
@@ -53,56 +50,53 @@ class SelectorRow<T> extends StatelessWidget {
           alignment: Alignment.centerRight,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 120),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: () async {
-                  final result = await showAppModalBottomSheet<T>(
-                    context: context,
-                    builder: (context) => Padding(
-                      padding: const EdgeInsets.only(bottom: 100),
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          for (final option in options)
-                            ListTile(
-                              title: Text(option.label),
-                              trailing: option.value == value
-                                  ? Icon(
-                                      Icons.check,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                    )
-                                  : null,
-                              onTap: () =>
-                                  Navigator.of(context).pop(option.value),
-                            ),
-                        ],
-                      ),
+            child: OutlinedButton(
+              onPressed: () async {
+                final result = await showAppModalBottomSheet<T>(
+                  context: context,
+                  builder: (context) => Padding(
+                    padding: const EdgeInsets.only(bottom: 100),
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        for (final option in options)
+                          ListTile(
+                            title: Text(option.label),
+                            trailing: option.value == value
+                                ? Icon(
+                                    Icons.check,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                  )
+                                : null,
+                            onTap: () =>
+                                Navigator.of(context).pop(option.value),
+                          ),
+                      ],
                     ),
-                  );
-                  if (result != null) onChanged(result);
-                },
-                child: Container(
-                  height: 48,
-                  alignment: Alignment.centerLeft,
-                  decoration: BoxDecoration(
-                    color: selectColor,
-                    border: Border.all(color: Colors.blueGrey),
-                    borderRadius: BorderRadius.circular(4),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(_labelFor(value)),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.arrow_drop_down),
-                    ],
-                  ),
+                );
+                if (result != null && context.mounted) onChanged(result);
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: scheme.onSurface,
+                backgroundColor: scheme.surfaceContainerLowest,
+                side: BorderSide(color: scheme.outline),
+                minimumSize: const Size(120, 48),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
                 ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(child: Text(_labelFor(value))),
+                  const SizedBox(width: 8),
+                  Icon(Icons.arrow_drop_down, color: scheme.primary),
+                ],
               ),
             ),
           ),

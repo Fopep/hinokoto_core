@@ -19,24 +19,39 @@ void main() {
     });
   }
 
-  test('defaults to AppPalette colors', () {
-    final scheme = buildAppTheme(Brightness.light).colorScheme;
-    expect(scheme.primary, AppPalette.blue);
-    expect(scheme.secondary, AppPalette.purple);
-    expect(scheme.tertiary, AppPalette.orange);
-    expect(scheme.error, AppPalette.red);
-  });
+  for (final brightness in Brightness.values) {
+    test('defaults to a coherent tonal palette in ${brightness.name}', () {
+      final scheme = buildAppTheme(brightness).colorScheme;
+      final expected = ColorScheme.fromSeed(
+        seedColor: AppPalette.blue,
+        brightness: brightness,
+      );
+
+      expect(scheme, expected);
+      expect(
+        _contrastRatio(scheme.primary, scheme.onPrimary),
+        greaterThan(4.5),
+      );
+      expect(_contrastRatio(scheme.error, scheme.onError), greaterThan(4.5));
+    });
+  }
 
   for (final brightness in Brightness.values) {
-    test(
-      'switch thumb is white only when on, default otherwise in ${brightness.name}',
-      () {
-        final thumbColor = buildAppTheme(brightness).switchTheme.thumbColor!;
-        expect(thumbColor.resolve({WidgetState.selected}), Colors.white);
-        expect(thumbColor.resolve({}), isNull);
-        expect(thumbColor.resolve({WidgetState.disabled}), isNull);
-      },
-    );
+    test('switch uses the primary container pair in ${brightness.name}', () {
+      final theme = buildAppTheme(brightness);
+      final thumbColor = theme.switchTheme.thumbColor!;
+      final trackColor = theme.switchTheme.trackColor!;
+      expect(
+        thumbColor.resolve({WidgetState.selected}),
+        theme.colorScheme.onPrimaryContainer,
+      );
+      expect(
+        trackColor.resolve({WidgetState.selected}),
+        theme.colorScheme.primaryContainer,
+      );
+      expect(thumbColor.resolve({}), isNull);
+      expect(thumbColor.resolve({WidgetState.disabled}), isNull);
+    });
   }
 
   test(
@@ -80,22 +95,72 @@ void main() {
     expect(labelStyle?.fontWeight, FontWeight.w700);
   });
 
-  test('every color is overridable so apps are not stuck with AppPalette', () {
+  test('role overrides automatically receive a contrasting foreground', () {
     const seed = Color(0xFF00AA00);
-    const secondary = Color(0xFF00BB00);
-    const tertiary = Color(0xFF00CC00);
-    const error = Color(0xFF00DD00);
+    const primary = Color(0xFFFFD54F);
+    const secondary = Color(0xFF152238);
+    const tertiary = Color(0xFFB8F2E6);
+    const error = Color(0xFF8B1E2D);
     final scheme = buildAppTheme(
       Brightness.light,
       seedColor: seed,
+      primaryColor: primary,
       secondaryColor: secondary,
       tertiaryColor: tertiary,
       errorColor: error,
     ).colorScheme;
 
-    expect(scheme.primary, seed);
+    expect(scheme.primary, primary);
+    expect(scheme.onPrimary, Colors.black);
     expect(scheme.secondary, secondary);
+    expect(scheme.onSecondary, Colors.white);
     expect(scheme.tertiary, tertiary);
+    expect(scheme.onTertiary, Colors.black);
     expect(scheme.error, error);
+    expect(scheme.onError, Colors.white);
   });
+
+  test('a complete custom ColorScheme drives surfaces and controls', () {
+    final customScheme = ColorScheme.fromSeed(
+      seedColor: AppPalette.green,
+      brightness: Brightness.dark,
+    );
+    final theme = buildAppTheme(Brightness.dark, colorScheme: customScheme);
+
+    expect(theme.colorScheme, customScheme);
+    expect(theme.scaffoldBackgroundColor, customScheme.surface);
+    expect(theme.cardTheme.color, customScheme.surfaceContainerLow);
+    expect(
+      theme.dialogTheme.backgroundColor,
+      customScheme.surfaceContainerHigh,
+    );
+    expect(
+      theme.navigationBarTheme.indicatorColor,
+      customScheme.primaryContainer,
+    );
+  });
+
+  test('rejects a ColorScheme with a mismatched brightness', () {
+    final darkScheme = ColorScheme.fromSeed(
+      seedColor: AppPalette.blue,
+      brightness: Brightness.dark,
+    );
+
+    expect(
+      () => buildAppTheme(Brightness.light, colorScheme: darkScheme),
+      throwsArgumentError,
+    );
+  });
+}
+
+double _contrastRatio(Color first, Color second) {
+  final firstLuminance = first.computeLuminance();
+  final secondLuminance = second.computeLuminance();
+  final lighter = firstLuminance > secondLuminance
+      ? firstLuminance
+      : secondLuminance;
+  final darker = firstLuminance > secondLuminance
+      ? secondLuminance
+      : firstLuminance;
+  return (lighter + .05) / (darker + .05);
 }

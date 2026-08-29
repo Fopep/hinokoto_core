@@ -16,7 +16,7 @@ dependencies:
   hinokoto_core:
     git:
       url: https://github.com/Fopep/hinokoto_core.git
-      ref: v0.6.0
+      ref: v0.8.0
 ```
 
 Then import the single barrel file — do not import files under `lib/src/` directly:
@@ -60,10 +60,13 @@ app's identity. See the consuming app's own `AppConfig` (e.g. `lib/src/app_confi
 - `switch_row.dart` — `SwitchRow`, a labeled on/off row matching the shared dialog styling.
 - `horizontal_scroll_row.dart` — `HorizontalScrollRow`, a row that scrolls horizontally instead of
   wrapping when it overflows, with edge fade affordances.
-- `app_theme.dart` — `buildAppTheme(Brightness, {seedColor, primaryColor, onPrimaryColor,
-  secondaryColor, tertiaryColor, errorColor})`. Every color defaults to `AppPalette`'s values but is
-  overridable — apps are not stuck with the same brand colors just because they share this theme
-  builder. `AppPalette` itself (color constants) is still here as the shared default palette.
+- `app_theme.dart` — `buildAppTheme(Brightness, {seedColor, colorScheme, primaryColor, ...})`.
+  The default theme derives a complete light/dark tonal palette from `AppPalette.blue`, so surfaces,
+  controls, and their foregrounds stay harmonized. Pass another `seedColor` for the usual brand
+  customization, a complete `colorScheme` for full control, or individual role overrides for a
+  small exception. A role override automatically gets a high-contrast black/white foreground unless
+  its matching `on*Color` is supplied explicitly. `AppPalette` remains available for charts and
+  categorical accents; those raw accent constants are no longer forced into semantic UI roles.
 - `svg_logo.dart` — `SvgLogo`, a parameterized SVG logo widget.
 - `app_review.dart` — `supportsInAppReview`, `requestAppReview()`, `showRateMenuItem()`,
   `isAndroidPlatform`, `isIosPlatform`.
@@ -108,6 +111,11 @@ specific tag rather than tracking `main`, so bumping is an explicit, per-app dec
   `web/index.html` codegen tool apps can invoke via `dart run hinokoto_core:apply_web_ads`,
   extracted from `app_template`'s local `tool/apply_settings.dart` so every app generates
   byte-identical AdSense markup from its own `app_settings.yaml`.
+- `v0.7.0` — added shared app-bar shadow wrappers for regular and sliver app bars.
+- `v0.8.0` — rebuilt the shared theme around Material 3's brightness-aware tonal roles, added full
+  `ColorScheme` and matching `on*` overrides, derived surfaces/borders/control colors from the
+  scheme, and made `SelectorRow` use an accessible theme-aware Material button instead of fixed
+  black/white/blue-grey colors.
 
 ## Development
 

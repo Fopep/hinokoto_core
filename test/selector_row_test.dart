@@ -56,4 +56,37 @@ void main() {
     expect(selected, 'b');
     expect(find.text('Option B'), findsNothing); // sheet closed
   });
+
+  for (final brightness in Brightness.values) {
+    testWidgets('色と形がテーマに追従する（${brightness.name}）', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildAppTheme(brightness),
+          home: Scaffold(
+            body: SelectorRow<String>(
+              label: 'Label',
+              value: 'a',
+              options: options,
+              onChanged: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      final context = tester.element(find.byType(SelectorRow<String>));
+      final scheme = Theme.of(context).colorScheme;
+      final button = tester.widget<OutlinedButton>(find.byType(OutlinedButton));
+
+      expect(button.style?.foregroundColor?.resolve({}), scheme.onSurface);
+      expect(
+        button.style?.backgroundColor?.resolve({}),
+        scheme.surfaceContainerLowest,
+      );
+      expect(button.style?.side?.resolve({})?.color, scheme.outline);
+      expect(
+        tester.widget<Icon>(find.byIcon(Icons.arrow_drop_down)).color,
+        scheme.primary,
+      );
+    });
+  }
 }

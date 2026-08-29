@@ -11,12 +11,96 @@ abstract final class AppPalette {
   static const colors = [slate, blue, green, orange, purple];
 }
 
+/// The deliberate Hinokoto brand scheme.
+///
+/// Unlike a generated dark scheme, its primary is a confident mid-blue rather
+/// than a pale pastel. Light mode uses a deeper blue so white labels retain
+/// WCAG AA contrast. Neutral surfaces carry only a restrained cool tint,
+/// leaving the four-color Hinokoto logo and data colors room to stand out.
+ColorScheme buildHinokotoColorScheme(Brightness brightness) {
+  final base = ColorScheme.fromSeed(
+    seedColor: AppPalette.blue,
+    brightness: brightness,
+  );
+
+  return switch (brightness) {
+    Brightness.light => base.copyWith(
+      primary: const Color(0xFF086FA8),
+      onPrimary: Colors.white,
+      primaryContainer: const Color(0xFFD3EDFF),
+      onPrimaryContainer: const Color(0xFF004B73),
+      secondary: const Color(0xFF6D4FA3),
+      onSecondary: Colors.white,
+      secondaryContainer: const Color(0xFFEBDDFF),
+      onSecondaryContainer: const Color(0xFF4F347F),
+      tertiary: const Color(0xFF956000),
+      onTertiary: Colors.white,
+      tertiaryContainer: const Color(0xFFFFDEA6),
+      onTertiaryContainer: const Color(0xFF5D3A00),
+      error: const Color(0xFFBA1A1A),
+      onError: Colors.white,
+      errorContainer: const Color(0xFFFFDAD6),
+      onErrorContainer: const Color(0xFF93000A),
+      surface: const Color(0xFFF5F8FB),
+      onSurface: const Color(0xFF182025),
+      surfaceDim: const Color(0xFFD7DEE3),
+      surfaceBright: const Color(0xFFF9FBFD),
+      surfaceContainerLowest: Colors.white,
+      surfaceContainerLow: Colors.white,
+      surfaceContainer: const Color(0xFFF0F4F7),
+      surfaceContainerHigh: const Color(0xFFE8EEF2),
+      surfaceContainerHighest: const Color(0xFFDFE7EC),
+      onSurfaceVariant: const Color(0xFF44515A),
+      outline: const Color(0xFF6F7D86),
+      outlineVariant: const Color(0xFFC3CDD3),
+      inverseSurface: const Color(0xFF2D353A),
+      onInverseSurface: const Color(0xFFEEF2F5),
+      inversePrimary: const Color(0xFF76C7F6),
+      surfaceTint: const Color(0xFF086FA8),
+    ),
+    Brightness.dark => base.copyWith(
+      primary: AppPalette.blue,
+      onPrimary: const Color(0xFF00243A),
+      primaryContainer: const Color(0xFF174C6B),
+      onPrimaryContainer: const Color(0xFFC4E8FF),
+      secondary: const Color(0xFFB99AE5),
+      onSecondary: const Color(0xFF251239),
+      secondaryContainer: const Color(0xFF49325F),
+      onSecondaryContainer: const Color(0xFFECD9FF),
+      tertiary: const Color(0xFFE8AF45),
+      onTertiary: const Color(0xFF382800),
+      tertiaryContainer: const Color(0xFF5E450F),
+      onTertiaryContainer: const Color(0xFFFFE0A3),
+      error: const Color(0xFFF07A82),
+      onError: const Color(0xFF33090D),
+      errorContainer: const Color(0xFF65242A),
+      onErrorContainer: const Color(0xFFFFDADD),
+      surface: const Color(0xFF0F1519),
+      onSurface: const Color(0xFFE7EDF1),
+      surfaceDim: const Color(0xFF0B1014),
+      surfaceBright: const Color(0xFF303A41),
+      surfaceContainerLowest: const Color(0xFF12191E),
+      surfaceContainerLow: const Color(0xFF182126),
+      surfaceContainer: const Color(0xFF1D272D),
+      surfaceContainerHigh: const Color(0xFF222D34),
+      surfaceContainerHighest: const Color(0xFF2A363E),
+      onSurfaceVariant: const Color(0xFFBAC5CC),
+      outline: const Color(0xFF8A979F),
+      outlineVariant: const Color(0xFF3D4951),
+      inverseSurface: const Color(0xFFE7EDF1),
+      onInverseSurface: const Color(0xFF263036),
+      inversePrimary: const Color(0xFF086FA8),
+      surfaceTint: AppPalette.blue,
+    ),
+  };
+}
+
 /// Builds a Material 3 [ThemeData] from a coherent tonal palette.
 ///
-/// [seedColor] identifies the brand, while Material derives brightness-aware
-/// role colors (including matching `on*` foregrounds) from it. Individual
-/// role overrides remain available, and [colorScheme] lets an app supply a
-/// complete scheme without forking the shared component themes.
+/// With the default [seedColor], this uses [buildHinokotoColorScheme]. Another
+/// seed gets Material's generated tonal palette. Individual role overrides
+/// remain available, and [colorScheme] lets an app supply a complete scheme
+/// without forking the shared component themes.
 ThemeData buildAppTheme(
   Brightness brightness, {
   Color seedColor = AppPalette.blue,
@@ -46,7 +130,9 @@ ThemeData buildAppTheme(
   final isDark = brightness == Brightness.dark;
   var scheme =
       colorScheme ??
-      ColorScheme.fromSeed(seedColor: seedColor, brightness: brightness);
+      (seedColor == AppPalette.blue
+          ? buildHinokotoColorScheme(brightness)
+          : ColorScheme.fromSeed(seedColor: seedColor, brightness: brightness));
 
   // A role override without its foreground used to leave an unrelated
   // generated `on*` color behind. Pick the higher-contrast neutral instead,
@@ -147,19 +233,18 @@ ThemeData buildAppTheme(
       indicatorColor: scheme.primaryContainer,
     ),
     dividerColor: scheme.outlineVariant,
-    // Use a matching container/on-container pair: it is softer than a solid
-    // primary track and remains legible in both brightness modes.
+    // A switch is a binary status, so its on state should be unmistakable.
+    // Keep the brand-blue track and white thumb in both brightness modes;
+    // generated primary-container colors were too pale in light mode.
     switchTheme: SwitchThemeData(
-      thumbColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected)
-            ? scheme.onPrimaryContainer
-            : null,
-      ),
-      trackColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected)
-            ? scheme.primaryContainer
-            : null,
-      ),
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) return null;
+        return states.contains(WidgetState.selected) ? Colors.white : null;
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) return null;
+        return states.contains(WidgetState.selected) ? scheme.primary : null;
+      }),
     ),
     iconButtonTheme: IconButtonThemeData(
       style: ButtonStyle(
@@ -186,6 +271,10 @@ ThemeData buildAppTheme(
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
+        disabledBackgroundColor: scheme.onSurface.withValues(alpha: 0.12),
+        disabledForegroundColor: scheme.onSurface.withValues(alpha: 0.38),
         minimumSize: const Size(48, 48),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         textStyle: buttonLabelStyle,

@@ -20,44 +20,67 @@ void main() {
   }
 
   for (final brightness in Brightness.values) {
-    test('defaults to a coherent tonal palette in ${brightness.name}', () {
+    test('defaults to the Hinokoto brand palette in ${brightness.name}', () {
       final scheme = buildAppTheme(brightness).colorScheme;
-      final expected = ColorScheme.fromSeed(
-        seedColor: AppPalette.blue,
-        brightness: brightness,
-      );
+      final expected = buildHinokotoColorScheme(brightness);
 
       expect(scheme, expected);
-      expect(
-        _contrastRatio(scheme.primary, scheme.onPrimary),
-        greaterThan(4.5),
-      );
-      expect(_contrastRatio(scheme.error, scheme.onError), greaterThan(4.5));
+      for (final pair in [
+        (scheme.primary, scheme.onPrimary),
+        (scheme.primaryContainer, scheme.onPrimaryContainer),
+        (scheme.secondary, scheme.onSecondary),
+        (scheme.tertiary, scheme.onTertiary),
+        (scheme.error, scheme.onError),
+        (scheme.surface, scheme.onSurface),
+        (scheme.surfaceContainerHighest, scheme.onSurfaceVariant),
+      ]) {
+        expect(_contrastRatio(pair.$1, pair.$2), greaterThan(4.5));
+      }
     });
   }
 
+  test('uses strong brand blues for primary actions', () {
+    final light = buildHinokotoColorScheme(Brightness.light);
+    final dark = buildHinokotoColorScheme(Brightness.dark);
+
+    expect(light.primary, const Color(0xFF086FA8));
+    expect(light.onPrimary, Colors.white);
+    expect(dark.primary, AppPalette.blue);
+    expect(dark.onPrimary, const Color(0xFF00243A));
+  });
+
   for (final brightness in Brightness.values) {
-    test('switch uses the primary container pair in ${brightness.name}', () {
+    test('switch uses a strong blue track in ${brightness.name}', () {
       final theme = buildAppTheme(brightness);
       final thumbColor = theme.switchTheme.thumbColor!;
       final trackColor = theme.switchTheme.trackColor!;
-      expect(
-        thumbColor.resolve({WidgetState.selected}),
-        theme.colorScheme.onPrimaryContainer,
-      );
+      expect(thumbColor.resolve({WidgetState.selected}), Colors.white);
       expect(
         trackColor.resolve({WidgetState.selected}),
-        theme.colorScheme.primaryContainer,
+        theme.colorScheme.primary,
       );
       expect(thumbColor.resolve({}), isNull);
       expect(thumbColor.resolve({WidgetState.disabled}), isNull);
+      expect(
+        trackColor.resolve({WidgetState.selected, WidgetState.disabled}),
+        isNull,
+      );
     });
   }
 
-  test(
-    'elevated/filled/outlined/text buttons use primary/onPrimary colors',
-    () {
-      final theme = buildAppTheme(Brightness.light);
+  test('a non-Hinokoto seed still uses Material color generation', () {
+    const seed = Color(0xFF008577);
+    final scheme = buildAppTheme(Brightness.light, seedColor: seed).colorScheme;
+
+    expect(
+      scheme,
+      ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.light),
+    );
+  });
+
+  for (final brightness in Brightness.values) {
+    test('buttons use strong semantic colors in ${brightness.name}', () {
+      final theme = buildAppTheme(brightness);
       final scheme = theme.colorScheme;
 
       Color? resolve(WidgetStateProperty<Color?>? property) =>
@@ -72,6 +95,14 @@ void main() {
         scheme.onPrimary,
       );
       expect(
+        resolve(theme.filledButtonTheme.style?.backgroundColor),
+        scheme.primary,
+      );
+      expect(
+        resolve(theme.filledButtonTheme.style?.foregroundColor),
+        scheme.onPrimary,
+      );
+      expect(
         resolve(theme.outlinedButtonTheme.style?.foregroundColor),
         scheme.primary,
       );
@@ -79,8 +110,8 @@ void main() {
         resolve(theme.textButtonTheme.style?.foregroundColor),
         scheme.primary,
       );
-    },
-  );
+    });
+  }
 
   test('button label style comes from the passed-in textTheme', () {
     const customTextTheme = TextTheme(

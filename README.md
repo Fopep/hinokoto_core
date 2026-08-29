@@ -16,7 +16,7 @@ dependencies:
   hinokoto_core:
     git:
       url: https://github.com/Fopep/hinokoto_core.git
-      ref: v0.8.0
+      ref: v0.8.1
 ```
 
 Then import the single barrel file — do not import files under `lib/src/` directly:
@@ -61,12 +61,12 @@ app's identity. See the consuming app's own `AppConfig` (e.g. `lib/src/app_confi
 - `horizontal_scroll_row.dart` — `HorizontalScrollRow`, a row that scrolls horizontally instead of
   wrapping when it overflows, with edge fade affordances.
 - `app_theme.dart` — `buildAppTheme(Brightness, {seedColor, colorScheme, primaryColor, ...})`.
-  The default theme derives a complete light/dark tonal palette from `AppPalette.blue`, so surfaces,
-  controls, and their foregrounds stay harmonized. Pass another `seedColor` for the usual brand
-  customization, a complete `colorScheme` for full control, or individual role overrides for a
-  small exception. A role override automatically gets a high-contrast black/white foreground unless
-  its matching `on*Color` is supplied explicitly. `AppPalette` remains available for charts and
-  categorical accents; those raw accent constants are no longer forced into semantic UI roles.
+  The default uses the purpose-built `buildHinokotoColorScheme`: a deeper accessible blue in light
+  mode, a confident non-pastel brand blue in dark mode, and restrained cool-neutral surfaces. Pass
+  another `seedColor` for Material's generated palette, a complete `colorScheme` for full control,
+  or individual role overrides for a small exception. A role override automatically gets a
+  high-contrast black/white foreground unless its matching `on*Color` is supplied explicitly.
+  `AppPalette` remains available for charts and categorical accents.
 - `svg_logo.dart` — `SvgLogo`, a parameterized SVG logo widget.
 - `app_review.dart` — `supportsInAppReview`, `requestAppReview()`, `showRateMenuItem()`,
   `isAndroidPlatform`, `isIosPlatform`.
@@ -116,6 +116,9 @@ specific tag rather than tracking `main`, so bumping is an explicit, per-app dec
   `ColorScheme` and matching `on*` overrides, derived surfaces/borders/control colors from the
   scheme, and made `SelectorRow` use an accessible theme-aware Material button instead of fixed
   black/white/blue-grey colors.
+- `v0.8.1` — replaced the overly pastel generated defaults with a purpose-built Hinokoto light/dark
+  scheme, restored strong brand-blue primary actions, and made selected switches use a clear blue
+  track with a white thumb in both brightness modes.
 
 ## Development
 

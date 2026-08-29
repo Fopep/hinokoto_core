@@ -149,11 +149,28 @@ void main() {
     expect(shadow.blurRadius, 12);
   });
 
-  testWidgets(
-    'HinokotoPinnedHeaderはpinnedなSliverAppBarとしてsurfaceTintColorを持つ',
-    (tester) async {
+  for (final brightness in Brightness.values) {
+    testWidgets('HinokotoPinnedHeaderは${brightness.name}用の背景色と前景色を持つ', (
+      tester,
+    ) async {
+      final theme = buildAppTheme(brightness);
+      final scheme = theme.colorScheme;
+      final expectedBackground = Color.alphaBlend(
+        scheme.primary.withValues(
+          alpha: brightness == Brightness.dark ? .12 : .10,
+        ),
+        brightness == Brightness.dark
+            ? scheme.surfaceContainerHigh
+            : scheme.surface,
+      );
+
       await tester.pumpWidget(
         MaterialApp(
+          theme: theme,
+          darkTheme: theme,
+          themeMode: brightness == Brightness.dark
+              ? ThemeMode.dark
+              : ThemeMode.light,
           home: Scaffold(
             body: CustomScrollView(
               slivers: [
@@ -177,10 +194,37 @@ void main() {
       );
       expect(sliverAppBar.pinned, isTrue);
       expect(sliverAppBar.toolbarHeight, 72);
-      expect(sliverAppBar.surfaceTintColor, isNotNull);
+      expect(sliverAppBar.backgroundColor, expectedBackground);
+      expect(sliverAppBar.foregroundColor, scheme.onSurface);
+      expect(sliverAppBar.surfaceTintColor, scheme.surfaceTint);
       expect(find.text('Heading'), findsOneWidget);
-    },
-  );
+    });
+  }
+
+  testWidgets('HinokotoPinnedHeaderは背景色と前景色を上書きできる', (tester) async {
+    const background = Color(0xFF123456);
+    const foreground = Color(0xFFFEDCBA);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CustomScrollView(
+            slivers: [
+              HinokotoPinnedHeader(
+                backgroundColor: background,
+                foregroundColor: foreground,
+                child: const Text('Heading'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final sliverAppBar = tester.widget<SliverAppBar>(find.byType(SliverAppBar));
+    expect(sliverAppBar.backgroundColor, background);
+    expect(sliverAppBar.foregroundColor, foreground);
+  });
 }
 
 class _TestPage extends StatelessWidget {

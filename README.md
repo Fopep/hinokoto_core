@@ -119,6 +119,8 @@ specific tag rather than tracking `main`, so bumping is an explicit, per-app dec
 - `v0.8.1` — replaced the overly pastel generated defaults with a purpose-built Hinokoto light/dark
   scheme, restored strong brand-blue primary actions, and made selected switches use a clear blue
   track with a white thumb in both brightness modes.
+- `v0.8.2` — gave `HinokotoPinnedHeader` a subtle brand-tinted background and high-contrast
+  foreground in both brightness modes, with optional per-instance color overrides.
 
 ## Development
 

@@ -151,23 +151,47 @@ class HinokotoPinnedHeader extends StatelessWidget {
     super.key,
     required this.child,
     this.toolbarHeight = 64,
+    this.backgroundColor,
+    this.foregroundColor,
   });
 
   final Widget child;
   final double toolbarHeight;
 
+  /// Overrides the theme-aware, subtly brand-tinted background.
+  final Color? backgroundColor;
+
+  /// Overrides the high-contrast text and icon color.
+  final Color? foregroundColor;
+
   @override
-  Widget build(BuildContext context) => SliverAppBar(
-    pinned: true,
-    primary: false,
-    automaticallyImplyLeading: false,
-    centerTitle: false,
-    titleSpacing: 0,
-    toolbarHeight: toolbarHeight,
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
-    title: child,
-  );
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final effectiveBackgroundColor =
+        backgroundColor ??
+        Color.alphaBlend(
+          scheme.primary.withValues(
+            alpha: theme.brightness == Brightness.dark ? .12 : .10,
+          ),
+          theme.brightness == Brightness.dark
+              ? scheme.surfaceContainerHigh
+              : scheme.surface,
+        );
+
+    return SliverAppBar(
+      pinned: true,
+      primary: false,
+      automaticallyImplyLeading: false,
+      centerTitle: false,
+      titleSpacing: 0,
+      toolbarHeight: toolbarHeight,
+      backgroundColor: effectiveBackgroundColor,
+      foregroundColor: foregroundColor ?? scheme.onSurface,
+      surfaceTintColor: scheme.surfaceTint,
+      title: child,
+    );
+  }
 }
 
 class AppBackButton extends StatelessWidget {

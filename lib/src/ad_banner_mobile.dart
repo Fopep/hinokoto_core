@@ -99,12 +99,12 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
     final ad = BannerAd(
       adUnitId: Platform.isAndroid ? androidBannerId : iosBannerId,
       size: AdSize.largeBanner,
-      // iOS never shows the ATT prompt, so IDFA is never available — request
-      // non-personalized ads explicitly there rather than leaving it to
-      // SDK/consent-signal defaults. Android is untouched: no ATT/IDFA
-      // concept applies, so it keeps requesting ads the same way it always
-      // has (governed by UMP consent only).
-      request: AdRequest(nonPersonalizedAds: Platform.isIOS ? true : null),
+      // Both platforms default to non-personalized ads: iOS never requests
+      // ATT so IDFA is unavailable, and Android is set the same way as a
+      // deliberate policy choice to avoid ad-ID-based targeting by default
+      // (the AD_ID permission and UMP consent flow are untouched). AdMob
+      // still serves contextual ads either way.
+      request: const AdRequest(nonPersonalizedAds: true),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           _isLoading = false;

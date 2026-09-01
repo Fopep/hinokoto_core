@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -75,12 +74,6 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
 
   Future<void> _requestAdIfAllowed() async {
     if (!await ConsentInformation.instance.canRequestAds()) return;
-    if (Platform.isIOS) {
-      final status = await AppTrackingTransparency.trackingAuthorizationStatus;
-      if (status == TrackingStatus.notDetermined) {
-        await AppTrackingTransparency.requestTrackingAuthorization();
-      }
-    }
     await MobileAds.instance.updateRequestConfiguration(
       RequestConfiguration(
         maxAdContentRating: MaxAdContentRating.g,
@@ -106,7 +99,10 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
     final ad = BannerAd(
       adUnitId: Platform.isAndroid ? androidBannerId : iosBannerId,
       size: AdSize.largeBanner,
-      request: const AdRequest(),
+      // Never request tracking-based (personalized) ads — this app doesn't
+      // show the ATT prompt, so always ask for non-personalized ads
+      // explicitly rather than relying on IDFA/consent-signal defaults.
+      request: const AdRequest(nonPersonalizedAds: true),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           _isLoading = false;

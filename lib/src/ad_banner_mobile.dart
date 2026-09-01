@@ -99,10 +99,12 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
     final ad = BannerAd(
       adUnitId: Platform.isAndroid ? androidBannerId : iosBannerId,
       size: AdSize.largeBanner,
-      // Never request tracking-based (personalized) ads — this app doesn't
-      // show the ATT prompt, so always ask for non-personalized ads
-      // explicitly rather than relying on IDFA/consent-signal defaults.
-      request: const AdRequest(nonPersonalizedAds: true),
+      // iOS never shows the ATT prompt, so IDFA is never available — request
+      // non-personalized ads explicitly there rather than leaving it to
+      // SDK/consent-signal defaults. Android is untouched: no ATT/IDFA
+      // concept applies, so it keeps requesting ads the same way it always
+      // has (governed by UMP consent only).
+      request: AdRequest(nonPersonalizedAds: Platform.isIOS ? true : null),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           _isLoading = false;

@@ -351,7 +351,7 @@ Future<T?> showAppDialog<T>({
   VoidCallback? onClose,
   double Function()? bottomReservedSpace,
   Listenable? bottomReservedSpaceListenable,
-  EdgeInsets baseInset = const EdgeInsets.fromLTRB(40, 24, 40, 24),
+  EdgeInsets? baseInset,
 }) {
   onOpen?.call();
   final future = showDialog<T>(
@@ -364,12 +364,14 @@ Future<T?> showAppDialog<T>({
     useRootNavigator: useRootNavigator,
     traversalEdgeBehavior: traversalEdgeBehavior,
     builder: (context) {
+      final resolvedBaseInset =
+          baseInset ?? _defaultDialogInset(MediaQuery.sizeOf(context).width);
       final dialog = Align(
         alignment: Alignment.topCenter,
         child: _BottomReservedInset(
           getBottomReservedSpace: bottomReservedSpace,
           listenable: bottomReservedSpaceListenable,
-          baseInset: baseInset,
+          baseInset: resolvedBaseInset,
           useSafeArea: useSafeArea,
           builder: (context, inset) =>
               Padding(padding: inset, child: builder(context)),
@@ -397,6 +399,14 @@ Future<T?> showAppDialog<T>({
     },
   );
   return future.whenComplete(() => onClose?.call());
+}
+
+/// The outer gutter used by [showAppDialog] when no [EdgeInsets] is passed
+/// for `baseInset` — tighter on phone-width screens so it doesn't stack
+/// with [AppDialog]'s own width clamp and squeeze the panel further.
+EdgeInsets _defaultDialogInset(double width) {
+  if (width < 600) return const EdgeInsets.fromLTRB(16, 16, 16, 16);
+  return const EdgeInsets.fromLTRB(40, 24, 40, 24);
 }
 
 /// Pads [builder]'s content with [baseInset], stretching its bottom edge to

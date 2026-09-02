@@ -45,8 +45,8 @@ class MenuWithPinnedClose extends StatefulWidget {
     this.closeIcon = Icons.close_rounded,
     this.constraints,
     this.menuWidth = 360,
-    this.barrierColor = Colors.transparent,
-    this.blurSigma = 0,
+    this.barrierColor = const Color(0x7A000000),
+    this.blurSigma = 4,
     this.bottomReservedSpace = 0,
     this.contentMaxWidth = appContentMaxWidth,
   });
@@ -132,15 +132,12 @@ class _MenuWithPinnedCloseState extends State<MenuWithPinnedClose> {
       screenSize.height - screenMargin,
     );
 
-    const shadowBottomSpace = 24.0;
-
     final availableHeight =
         screenSize.height -
         panelTop -
         mediaQuery.padding.bottom -
         widget.bottomReservedSpace -
-        screenMargin -
-        shadowBottomSpace;
+        screenMargin;
 
     final safeAvailableHeight = availableHeight.clamp(0.0, double.infinity);
     final minimumHeight = safeAvailableHeight < 160.0

@@ -45,8 +45,8 @@ class MenuWithPinnedClose extends StatefulWidget {
     this.closeIcon = Icons.close_rounded,
     this.constraints,
     this.menuWidth = 360,
-    this.barrierColor = const Color(0x7A000000),
-    this.blurSigma = 4,
+    this.barrierColor = Colors.transparent,
+    this.blurSigma = 0,
     this.bottomReservedSpace = 0,
     this.contentMaxWidth = appContentMaxWidth,
   });
@@ -344,35 +344,45 @@ class _MenuPanel extends StatelessWidget {
                     namesRoute: true,
                     explicitChildNodes: true,
                     label: MaterialLocalizations.of(context).showMenuTooltip,
-                    child: SingleChildScrollView(
+                    // `shrinkWrap: true` so the panel hugs a short entry
+                    // list's actual height instead of a plain
+                    // `SingleChildScrollView` (which always fills the
+                    // height `Flexible` allocates to it, leaving a blank
+                    // gap below the last entry) — it still clamps to and
+                    // scrolls within that allocation once entries overflow
+                    // it.
+                    child: ListView(
+                      shrinkWrap: true,
                       physics: const BouncingScrollPhysics(
                         parent: AlwaysScrollableScrollPhysics(),
                       ),
                       padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
-                      child: Theme(
-                        data: theme.copyWith(
-                          popupMenuTheme: theme.popupMenuTheme.copyWith(
-                            textStyle: theme.textTheme.bodyLarge?.copyWith(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                      children: [
+                        Theme(
+                          data: theme.copyWith(
+                            popupMenuTheme: theme.popupMenuTheme.copyWith(
+                              textStyle: theme.textTheme.bodyLarge?.copyWith(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            dividerTheme: DividerThemeData(
+                              color: colorScheme.outline.withValues(alpha: 0.5),
+                              thickness: 1,
+                            ),
+                            splashColor: colorScheme.primary.withValues(
+                              alpha: 0.10,
+                            ),
+                            highlightColor: colorScheme.primary.withValues(
+                              alpha: 0.06,
                             ),
                           ),
-                          dividerTheme: DividerThemeData(
-                            color: colorScheme.outline.withValues(alpha: 0.5),
-                            thickness: 1,
-                          ),
-                          splashColor: colorScheme.primary.withValues(
-                            alpha: 0.10,
-                          ),
-                          highlightColor: colorScheme.primary.withValues(
-                            alpha: 0.06,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: entries,
                           ),
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: entries,
-                        ),
-                      ),
+                      ],
                     ),
                   ),
                 ),

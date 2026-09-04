@@ -135,15 +135,22 @@ class SelectorRow<T> extends StatelessWidget {
                 side: BorderSide(color: scheme.outline),
                 minimumSize: const Size(120, 48),
                 padding: const EdgeInsets.symmetric(horizontal: 12),
+                alignment: Alignment.centerRight,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Flexible(child: Text(_labelFor(value))),
+                  Flexible(
+                    child: Text(
+                      _labelFor(value),
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(fontWeight: FontWeight.w400),
+                    ),
+                  ),
                   const SizedBox(width: 8),
                   Icon(Icons.arrow_drop_down, color: scheme.primary),
                 ],

@@ -49,6 +49,8 @@ class MenuWithPinnedClose extends StatefulWidget {
     this.blurSigma = 4,
     this.bottomReservedSpace = 0,
     this.contentMaxWidth = appContentMaxWidth,
+    this.onBeforeOpen,
+    this.onClosed,
   });
 
   /// The branding widget shown at the top of the opened panel, next to its
@@ -76,6 +78,14 @@ class MenuWithPinnedClose extends StatefulWidget {
   /// The same content-width cap used elsewhere to center content on wide
   /// screens; used here to keep the button aligned with that content.
   final double contentMaxWidth;
+
+  /// Called just before the panel opens, after the trigger is tapped but
+  /// before the overlay is inserted. Useful for callers whose webview is an
+  /// iframe (web) and needs an `Offstage` change to reach the DOM first.
+  final Future<void> Function()? onBeforeOpen;
+
+  /// Called after the panel has closed, whether by selection or dismissal.
+  final VoidCallback? onClosed;
 
   @override
   State<MenuWithPinnedClose> createState() => _MenuWithPinnedCloseState();
@@ -132,12 +142,17 @@ class _MenuWithPinnedCloseState extends State<MenuWithPinnedClose> {
       screenSize.height - screenMargin,
     );
 
+    // Extra headroom so the panel's boxShadow (offset + blur) doesn't get
+    // clipped against the bottom of the screen.
+    const shadowBottomSpace = 24.0;
+
     final availableHeight =
         screenSize.height -
         panelTop -
         mediaQuery.padding.bottom -
         widget.bottomReservedSpace -
-        screenMargin;
+        screenMargin -
+        shadowBottomSpace;
 
     final safeAvailableHeight = availableHeight.clamp(0.0, double.infinity);
     final minimumHeight = safeAvailableHeight < 160.0
@@ -147,6 +162,9 @@ class _MenuWithPinnedCloseState extends State<MenuWithPinnedClose> {
       minimumHeight,
       safeAvailableHeight,
     );
+
+    await widget.onBeforeOpen?.call();
+    if (!mounted) return;
 
     setState(() => _isOpen = true);
 
@@ -232,6 +250,7 @@ class _MenuWithPinnedCloseState extends State<MenuWithPinnedClose> {
       }
     } finally {
       if (mounted) setState(() => _isOpen = false);
+      widget.onClosed?.call();
     }
   }
 

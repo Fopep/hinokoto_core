@@ -141,4 +141,42 @@ void main() {
 
     expect(selected, 'about');
   });
+
+  testWidgets('onBeforeOpenは開く前に、onClosedは閉じた後に呼ばれる', (tester) async {
+    final events = <String>[];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(
+            actions: [
+              MenuWithPinnedClose(
+                header: const Text('App Logo'),
+                onBeforeOpen: () async {
+                  events.add('beforeOpen');
+                },
+                onClosed: () {
+                  events.add('closed');
+                },
+                itemBuilder: (context) => const [
+                  PopupMenuItem(value: 'a', child: Text('Item A')),
+                ],
+                onSelected: (_) {},
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byIcon(Icons.menu_rounded));
+    await tester.pumpAndSettle();
+
+    expect(events, ['beforeOpen']);
+
+    await tester.tap(find.text('Item A'));
+    await tester.pumpAndSettle();
+
+    expect(events, ['beforeOpen', 'closed']);
+  });
 }

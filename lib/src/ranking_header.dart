@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 
-/// Shared height for a ranking screen's filter/sort header controls
-/// ([RankingSortButton], filter `DropdownButtonFormField`s decorated with
-/// [rankingFilterDropdownDecoration], and [RankingChipSelector]).
-const rankingControlHeight = 56.0;
+/// Fixed height shared by ranking-header controls. This is the minimum
+/// comfortable touch target while keeping a filter-dense header compact.
+const rankingControlHeight = 48.0;
+
+/// Exact height of the two always-visible selector rows, including padding.
+const rankingHeaderBaseHeight = 108.0;
+
+/// Extra height occupied by a conditional dropdown row.
+const rankingHeaderSecondaryRowHeight = 60.0;
 
 /// Horizontal gap between two controls placed side by side in a ranking
 /// header row (e.g. a filter dropdown next to [RankingSortButton]).
@@ -17,6 +22,59 @@ const rankingSecondaryRowGap = 12.0;
 /// Width reserved for a filter dropdown's leading icon in
 /// [rankingFilterDropdownDecoration].
 const rankingDropdownIconSlotWidth = 48.0;
+
+/// A neutral, pinned surface for ranking filters.
+///
+/// Ranking controls are dense navigation, not page identity, so the default
+/// uses a neutral container rather than a large primary-colored block. A
+/// hairline and low, constant elevation keep scrolling content visually below
+/// the controls. Optional colors let branded apps override the surface without
+/// copying this layout.
+class RankingHeaderSurface extends StatelessWidget {
+  const RankingHeaderSurface({
+    super.key,
+    required this.child,
+    required this.toolbarHeight,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.dividerColor,
+    this.shadowColor,
+  });
+
+  final Widget child;
+  final double toolbarHeight;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+  final Color? dividerColor;
+  final Color? shadowColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    return SliverAppBar(
+      pinned: true,
+      primary: false,
+      automaticallyImplyLeading: false,
+      centerTitle: false,
+      titleSpacing: 0,
+      toolbarHeight: toolbarHeight,
+      backgroundColor: backgroundColor ?? scheme.surfaceContainerLow,
+      foregroundColor: foregroundColor ?? scheme.onSurface,
+      shape: Border(
+        bottom: BorderSide(color: dividerColor ?? scheme.outlineVariant),
+      ),
+      elevation: 2,
+      scrolledUnderElevation: 2,
+      forceElevated: true,
+      shadowColor:
+          shadowColor ?? Colors.black.withValues(alpha: isDark ? .32 : .10),
+      surfaceTintColor: Colors.transparent,
+      title: child,
+    );
+  }
+}
 
 /// The dense, fixed-height decoration used by ranking-header filter
 /// dropdowns (`DropdownButtonFormField`), so every such field across apps
@@ -37,9 +95,7 @@ InputDecoration rankingFilterDropdownDecoration({
   ),
 );
 
-/// The sort/reverse-order toggle button shown next to a ranking screen's
-/// primary filter control — a fixed-height [FilledButton.tonalIcon] wrapped
-/// in a [Tooltip].
+/// The sort/reverse-order toggle shown next to a ranking filter.
 class RankingSortButton extends StatelessWidget {
   const RankingSortButton({
     super.key,
@@ -60,18 +116,33 @@ class RankingSortButton extends StatelessWidget {
   final Key? buttonKey;
 
   @override
-  Widget build(BuildContext context) => Tooltip(
-    message: tooltip,
-    child: SizedBox(
-      height: rankingControlHeight,
-      child: FilledButton.tonalIcon(
-        key: buttonKey,
-        onPressed: onPressed,
-        icon: Icon(icon),
-        label: label,
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: tooltip,
+      child: SizedBox(
+        height: rankingControlHeight,
+        child: FilledButton.tonalIcon(
+          key: buttonKey,
+          style: FilledButton.styleFrom(
+            backgroundColor: scheme.surfaceContainerHighest,
+            foregroundColor: scheme.primary,
+            disabledBackgroundColor: scheme.surfaceContainerHigh,
+            disabledForegroundColor: scheme.onSurfaceVariant,
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: scheme.outlineVariant),
+            ),
+          ),
+          onPressed: onPressed,
+          icon: Icon(icon, size: 20),
+          label: label,
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// A horizontally scrollable, single-select row of chips for a small set of
@@ -120,18 +191,15 @@ class RankingChipSelector<T> extends StatelessWidget {
       textDirection: Directionality.of(context),
       textScaler: MediaQuery.textScalerOf(context),
     )..layout();
-    return textPainter.width + 40 < minItemWidth
+    return textPainter.width + 32 < minItemWidth
         ? minItemWidth
-        : textPainter.width + 40;
+        : textPainter.width + 32;
   }
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final accentColor = scheme.primary;
-    final chipBackground = scheme.surfaceContainerHighest.withValues(
-      alpha: .45,
-    );
     return SizedBox(
       height: height,
       child: ListView.separated(
@@ -146,8 +214,8 @@ class RankingChipSelector<T> extends StatelessWidget {
           return SizedBox(
             width: _itemWidth(context, label),
             child: ChoiceChip(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-              backgroundColor: chipBackground,
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+              backgroundColor: scheme.surfaceContainerHighest,
               showCheckmark: false,
               // Web font loading can leave the chip's intrinsic text width
               // stale, so rebuild the label once fonts finish loading.
@@ -159,14 +227,21 @@ class RankingChipSelector<T> extends StatelessWidget {
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   softWrap: false,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: isSelected
+                        ? scheme.onPrimary
+                        : scheme.onSurfaceVariant,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                  ),
                 ),
               ),
               selected: isSelected,
-              selectedColor: accentColor.withValues(alpha: .24),
+              selectedColor: accentColor,
               side: BorderSide(
-                color: isSelected
-                    ? accentColor.withValues(alpha: .75)
-                    : Theme.of(context).dividerColor,
+                color: isSelected ? accentColor : scheme.outlineVariant,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
               onSelected: (_) => onChanged(value),
             ),

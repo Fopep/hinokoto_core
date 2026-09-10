@@ -60,6 +60,9 @@ app's identity. See the consuming app's own `AppConfig` (e.g. `lib/src/app_confi
 - `switch_row.dart` — `SwitchRow`, a labeled on/off row matching the shared dialog styling.
 - `horizontal_scroll_row.dart` — `HorizontalScrollRow`, a row that scrolls horizontally instead of
   wrapping when it overflows, with edge fade affordances.
+- `ranking_header.dart` — `RankingHeaderSurface`, `RankingChipSelector`, `RankingSortButton`, and
+  ranking filter sizing/decoration primitives for a compact, accessible, theme-aware ranking
+  control surface. Apps provide their own options, labels, and filtering behavior.
 - `app_theme.dart` — `buildAppTheme(Brightness, {seedColor, colorScheme, primaryColor, ...})`.
   The default uses the purpose-built `buildHinokotoColorScheme`: a deeper accessible blue in light
   mode, a confident non-pastel brand blue in dark mode, and restrained cool-neutral surfaces. Pass
@@ -123,6 +126,9 @@ specific tag rather than tracking `main`, so bumping is an explicit, per-app dec
   foreground in both brightness modes, with optional per-instance color overrides.
 - `v0.8.3` — kept `HinokotoPinnedHeader`'s background constant while scrolling by removing its
   scrolled-under tint and elevation.
+- `v0.10.0` — added a cohesive neutral `RankingHeaderSurface`; standardized ranking controls on
+  48dp touch targets; and strengthened selected, unselected, sort-button, border, and elevation
+  states while keeping all domain options and labels in consuming apps.
 
 ## Development
 

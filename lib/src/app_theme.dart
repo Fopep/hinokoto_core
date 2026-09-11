@@ -1,5 +1,21 @@
 import 'package:flutter/material.dart';
 
+/// Stable categorical colors used for Hinokoto icons and illustrations.
+///
+/// These intentionally do not drive [ColorScheme] roles: their saturated
+/// values are visual accents, while interactive surfaces and text continue to
+/// use theme-derived colors with appropriate contrast.
+abstract final class HinokotoIconPalette {
+  static const red = Color(0xFFFF7777);
+  static const orange = Color(0xFFFFAA00);
+  static const green = Color(0xFF66BB00);
+  static const blue = Color(0xFF33AAFF);
+  static const purple = Color(0xFFDD77FF);
+
+  static const colors = [red, orange, green, blue, purple];
+}
+
+/// Legacy chart and theme palette retained for compatibility.
 abstract final class AppPalette {
   static const slate = Color(0xFF64748B);
   static const blue = Color(0xFF3399DD);

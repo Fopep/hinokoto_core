@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'app_chrome.dart';
+
 const appContentMaxWidth = 760.0;
 
 /// Wraps [child] — almost always a plain [AppBar] — in the downward drop
@@ -114,17 +116,20 @@ class HinokotoAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.logo,
     required this.menu,
     this.centerTitle = true,
+    this.style,
   });
 
   final Widget logo;
   final Widget menu;
   final bool centerTitle;
+  final AppChromeStyle? style;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
-  Widget build(BuildContext context) => HinokotoAppBarShadow(
+  Widget build(BuildContext context) => AppChromeBar(
+    style: style,
     child: AppBar(
       centerTitle: centerTitle,
       title: logo,

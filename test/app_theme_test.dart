@@ -3,6 +3,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hinokoto_core/hinokoto_core.dart';
 
 void main() {
+  test('Hinokoto icon palette preserves the canonical five-color order', () {
+    expect(HinokotoIconPalette.red, const Color(0xFFFF7777));
+    expect(HinokotoIconPalette.orange, const Color(0xFFFFAA00));
+    expect(HinokotoIconPalette.green, const Color(0xFF66BB00));
+    expect(HinokotoIconPalette.blue, const Color(0xFF33AAFF));
+    expect(HinokotoIconPalette.purple, const Color(0xFFDD77FF));
+    expect(HinokotoIconPalette.colors, const [
+      Color(0xFFFF7777),
+      Color(0xFFFFAA00),
+      Color(0xFF66BB00),
+      Color(0xFF33AAFF),
+      Color(0xFFDD77FF),
+    ]);
+  });
+
   for (final brightness in Brightness.values) {
     test('input controls have visible state borders in ${brightness.name}', () {
       final theme = buildAppTheme(brightness).inputDecorationTheme;

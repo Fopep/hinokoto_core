@@ -60,6 +60,16 @@ app's identity. See the consuming app's own `AppConfig` (e.g. `lib/src/app_confi
 - `switch_row.dart` — `SwitchRow`, a labeled on/off row matching the shared dialog styling.
 - `horizontal_scroll_row.dart` — `HorizontalScrollRow`, a row that scrolls horizontally instead of
   wrapping when it overflows, with edge fade affordances.
+- `app_chrome.dart` — theme-derived top/sliver app-bar frames, a generic bottom-operation frame,
+  and bottom-navigation framing with consistent hairlines, directional shadows, and accessible
+  navigation states. `AppBottomActionButton` supplies standard, selected, and primary action
+  priorities with consistent 48dp-or-larger geometry, borders, elevation, disabled states, and
+  semantics. `HinokotoAppBar` delegates to the same chrome treatment.
+- `HinokotoIconPalette` — the stable red/orange/green/blue/purple five-color accent set for icons
+  and illustrations, kept separate from semantic `ColorScheme` roles and the legacy `AppPalette`.
+- `detail_header.dart` — a reusable detail-page title/subtitle surface and paired tab switcher.
+- `locator_map.dart` — responsive, zoomable hierarchical vector locator maps; consuming apps supply
+  projected paths, markers, and localized labels without exposing domain models to the package.
 - `ranking_header.dart` — `RankingHeaderSurface`, `RankingChipSelector`, `RankingSortButton`, and
   ranking filter sizing/decoration primitives for a compact, accessible, theme-aware ranking
   control surface. Apps provide their own options, labels, and filtering behavior.
@@ -129,6 +139,10 @@ specific tag rather than tracking `main`, so bumping is an explicit, per-app dec
 - `v0.10.0` — added a cohesive neutral `RankingHeaderSurface`; standardized ranking controls on
   48dp touch targets; and strengthened selected, unselected, sort-button, border, and elevation
   states while keeping all domain options and labels in consuming apps.
+- Unreleased — generalizes the experimental app chrome, detail heading/tab surfaces, and
+  hierarchical locator-map presentation for reuse across Hinokoto apps; adds the canonical
+  five-color `HinokotoIconPalette`; and aligns title/ranking surfaces on a restrained shared tonal
+  and elevation hierarchy.
 
 ## Development
 

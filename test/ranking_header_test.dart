@@ -30,9 +30,9 @@ void main() {
         expect(appBar.backgroundColor, scheme.surfaceContainerLow);
         expect(appBar.foregroundColor, scheme.onSurface);
         expect(border.bottom.color, scheme.outlineVariant);
-        expect(appBar.elevation, 2);
-        expect(appBar.scrolledUnderElevation, 2);
-        expect(appBar.forceElevated, isTrue);
+        expect(appBar.elevation, 0);
+        expect(appBar.scrolledUnderElevation, 1);
+        expect(appBar.forceElevated, isFalse);
         expect(appBar.surfaceTintColor, Colors.transparent);
       },
     );

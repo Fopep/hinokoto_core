@@ -15,7 +15,7 @@ const rankingHeaderSecondaryRowHeight = 60.0;
 const rankingControlGap = 8.0;
 
 /// Vertical gap above a conditionally-shown second row of controls in a
-/// ranking header (e.g. a prefecture/operator/year dropdown that only
+/// ranking header (e.g. a region/category/year dropdown that only
 /// appears for some filter selections).
 const rankingSecondaryRowGap = 12.0;
 
@@ -65,11 +65,11 @@ class RankingHeaderSurface extends StatelessWidget {
       shape: Border(
         bottom: BorderSide(color: dividerColor ?? scheme.outlineVariant),
       ),
-      elevation: 2,
-      scrolledUnderElevation: 2,
-      forceElevated: true,
+      elevation: 0,
+      scrolledUnderElevation: 1,
+      forceElevated: false,
       shadowColor:
-          shadowColor ?? Colors.black.withValues(alpha: isDark ? .32 : .10),
+          shadowColor ?? Colors.black.withValues(alpha: isDark ? .28 : .07),
       surfaceTintColor: Colors.transparent,
       title: child,
     );

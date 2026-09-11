@@ -22,7 +22,7 @@ void main() {
     expect(appBar.centerTitle, isTrue);
   });
 
-  testWidgets('HinokotoAppBarは下部コントロールバーと対になる下向きの影を持つ', (tester) async {
+  testWidgets('HinokotoAppBarは新しいAppChromeの線と影を使う', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -45,8 +45,16 @@ void main() {
     final decoration = decoratedBox.decoration as BoxDecoration;
     final shadow = decoration.boxShadow!.single;
 
-    expect(shadow.offset, const Offset(0, 3));
-    expect(shadow.blurRadius, 12);
+    final border = decoration.border! as Border;
+    expect(shadow.offset, const Offset(0, 2));
+    expect(shadow.blurRadius, 8);
+    expect(border.bottom.style, BorderStyle.solid);
+    expect(
+      decoration.color,
+      Theme.of(
+        tester.element(find.byType(AppBar)),
+      ).colorScheme.surfaceContainerLow,
+    );
 
     final appBar = tester.widget<AppBar>(find.byType(AppBar));
     expect(appBar.elevation, 0);

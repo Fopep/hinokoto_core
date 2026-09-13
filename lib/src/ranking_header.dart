@@ -185,7 +185,12 @@ class RankingChipSelector<T> extends StatelessWidget {
     final textPainter = TextPainter(
       text: TextSpan(
         text: label,
-        style: Theme.of(context).textTheme.labelLarge,
+        // A selected chip uses a heavier label than the base theme style.
+        // Measure at that widest weight so Latin glyphs never overflow by a
+        // fraction of a pixel and lose their final character.
+        style: Theme.of(
+          context,
+        ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
       ),
       maxLines: 1,
       textDirection: Directionality.of(context),

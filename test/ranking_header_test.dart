@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hinokoto_core/hinokoto_core.dart';
 
@@ -84,6 +85,34 @@ void main() {
     expect(
       tester.widget<ChoiceChip>(find.byType(ChoiceChip).last).selected,
       isTrue,
+    );
+  });
+
+  testWidgets('long selected Latin chip labels are not clipped', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: RankingChipSelector<int>(
+            options: const [(0, 'Year-over-year change')],
+            selected: 0,
+            onChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    final label = find.descendant(
+      of: find.byType(ChoiceChip),
+      matching: find.byType(RichText),
+    );
+    final paragraph = tester.renderObject<RenderParagraph>(label);
+    expect(
+      paragraph.size.width,
+      greaterThanOrEqualTo(
+        paragraph.getMaxIntrinsicWidth(double.infinity) - 0.01,
+      ),
     );
   });
 }

@@ -98,6 +98,55 @@ void main() {
     expect(find.byIcon(Icons.compare_arrows), findsOneWidget);
     expect(find.text('Composite heading'), findsOneWidget);
   });
+
+  testWidgets('DetailTabBar with isScrollable passes it through to TabBar', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            body: DetailTabBar(
+              isScrollable: true,
+              tabs: [
+                Tab(text: 'Data'),
+                Tab(text: 'Nearby'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final tabBar = tester.widget<TabBar>(find.byType(TabBar));
+    expect(tabBar.isScrollable, isTrue);
+    expect(tabBar.tabAlignment, TabAlignment.start);
+  });
+
+  testWidgets(
+    'DetailTabBar with isScrollable does not overflow with many tabs',
+    (tester) async {
+      final tabs = List.generate(20, (index) => Tab(text: 'Tab number $index'));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DefaultTabController(
+            length: tabs.length,
+            child: Scaffold(
+              body: SizedBox(
+                width: 300,
+                child: DetailTabBar(isScrollable: true, tabs: tabs),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      final tabBar = tester.widget<TabBar>(find.byType(TabBar));
+      expect(tabBar.isScrollable, isTrue);
+    },
+  );
 }
 
 double _contrast(Color foreground, Color background) {

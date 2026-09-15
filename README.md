@@ -139,10 +139,16 @@ specific tag rather than tracking `main`, so bumping is an explicit, per-app dec
 - `v0.10.0` — added a cohesive neutral `RankingHeaderSurface`; standardized ranking controls on
   48dp touch targets; and strengthened selected, unselected, sort-button, border, and elevation
   states while keeping all domain options and labels in consuming apps.
-- Unreleased — generalizes the experimental app chrome, detail heading/tab surfaces, and
+- `v0.11.0` — generalizes the experimental app chrome, detail heading/tab surfaces, and
   hierarchical locator-map presentation for reuse across Hinokoto apps; adds the canonical
   five-color `HinokotoIconPalette`; and aligns title/ranking surfaces on a restrained shared tonal
   and elevation hierarchy.
+- `v0.11.1` — fixed `RankingChipSelector` measuring a selected chip's label width at the base label
+  style instead of the heavier selected-state weight, which could clip the label's final character
+  by a fraction of a pixel.
+- `v0.12.0` — `DetailTabBar` gains `isScrollable`/`tabAlignment` params (default unscrollable,
+  unchanged) so a screen whose tab count grows can opt into a horizontally scrolling tab bar instead
+  of squishing evenly-divided tabs; `tabAlignment` defaults to `TabAlignment.start` when scrollable.
 
 ## Development
 

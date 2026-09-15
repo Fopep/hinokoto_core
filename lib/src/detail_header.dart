@@ -184,12 +184,16 @@ class DetailTabBar extends StatelessWidget {
     this.controller,
     this.maxWidth = appContentMaxWidth,
     this.style,
+    this.isScrollable = false,
+    this.tabAlignment,
   });
 
   final List<Widget> tabs;
   final TabController? controller;
   final double maxWidth;
   final DetailHeaderStyle? style;
+  final bool isScrollable;
+  final TabAlignment? tabAlignment;
 
   @override
   Widget build(BuildContext context) {
@@ -216,6 +220,9 @@ class DetailTabBar extends StatelessWidget {
             unselectedLabelColor: effectiveStyle.tabUnselected,
             indicatorColor: effectiveStyle.tabSelected,
             dividerColor: Colors.transparent,
+            isScrollable: isScrollable,
+            tabAlignment:
+                tabAlignment ?? (isScrollable ? TabAlignment.start : null),
             tabs: tabs,
           ),
         ),
